@@ -3,9 +3,9 @@
 </p>
 
 ![GitHub repo creation date](https://img.shields.io/badge/created-July%202024-brightgreen)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/user/repo-name)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/funcieqDEV/VSharp)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-![GitHub stars](https://img.shields.io/github/stars/user/repo-name)
+![GitHub stars](https://img.shields.io/github/stars/funcieqDev/VSharp)
 
 
 <br>
