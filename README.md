@@ -1,8 +1,9 @@
-<center>
-<h1 style="font-weight: bold; font-size: 2em;">
-  V#
-  </h1>
-</center>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/funcieqDEV/VSharp/blob/main/art/vs_logo.png">
+    <img width=60% src="">
+  </picture>
+</p>
 
 V# is a new and modern programming language. 
 characteristics:
