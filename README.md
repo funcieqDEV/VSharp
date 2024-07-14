@@ -26,8 +26,13 @@ a **new folde**r with the **project name** and starting files will be
 created in the place where you are currently
 
 - **run the project**
+```bash
 vsh run <file.vs>
+```
 
 
 - **install the library**
-vsh install <library> (i.e. either a link or a path from your computer)
+```bash
+vsh install <library>
+```
+ (i.e. either a link or a path from your computer)
