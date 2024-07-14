@@ -2,6 +2,11 @@
 <img src="art/vs_logo.png" width="400px">
 </p>
 
+![GitHub repo creation date](https://img.shields.io/badge/created-July%202024-brightgreen) 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/user/repo-name)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+<br>
 **an interpreted programming language that allows you to write all types of programs, from simple console applications to even games**
 
 
