@@ -18,7 +18,9 @@ characteristics:
 
 ### useful commands
 - **create new project**
-``` vsh create <project_name> ```
+```bash
+vsh create <project_name>
+```
 
 a **new folde**r with the **project name** and starting files will be 
 created in the place where you are currently
