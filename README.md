@@ -13,6 +13,6 @@ characteristics:
  at this point you can already use V#
 
 ### documentation
- You can find documentation on our (official website)[https://vsharp.pl]
+ You can find documentation on our [official website](https://vsharp.pl)
  or you can find it here on github 
  
