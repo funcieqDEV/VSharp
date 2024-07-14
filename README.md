@@ -1,7 +1,5 @@
 <p align="center">
-  <picture>
-    <source srcset="https://github.com/funcieqDEV/VSharp/blob/main/art/vs_logo.png">
-  </picture>
+<img src="art/vs_logo.png">
 </p>
 
 V# is a new and modern programming language. 
