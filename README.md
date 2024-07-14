@@ -1,4 +1,7 @@
+<p align="center">
 # V#
+</p>
+
 V# is a new and modern programming language. 
 characteristics:
 - **it is an interpreted language**
