@@ -15,4 +15,17 @@ characteristics:
 ### documentation
  You can find documentation on our [official website](https://vsharp.pl)
  or you can find it here on github 
- 
+
+### useful commands
+- **create new project**
+vsh create <project_name>
+
+a **new folde**r with the **project name** and starting files will be 
+created in the place where you are currently
+
+- **run the project**
+vsh run <file.vs>
+
+
+- **install the library**
+vsh install <library> (i.e. either a link or a path from your computer)
