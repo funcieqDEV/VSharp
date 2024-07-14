@@ -1,5 +1,5 @@
 <p align="center" style="font-weight: bold; font-size: 2em;">
-  Twój wycentrowany i pogrubiony tekst
+  V#
 </p>
 
 
