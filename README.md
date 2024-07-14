@@ -2,6 +2,9 @@
 <img src="art/vs_logo.png" width="400px">
 </p>
 
+**an interpreted programming language that allows you to write all types of programs, from simple console applications to even games**
+
+
 V# is a new and modern programming language. 
 characteristics:
 - **it is an interpreted language**
