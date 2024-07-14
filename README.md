@@ -18,7 +18,7 @@ characteristics:
  at this point you can already use V#
 
 ### documentation
- You can find documentation on our [official website](https://vsharp.pl)
+ You can find documentation on our [official website](https://vsharp.pl) [not exsist right now!!!]
  or you can find it here on github 
 
 ### useful commands
