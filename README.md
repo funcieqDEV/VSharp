@@ -25,7 +25,7 @@ characteristics:
 vsh create <project_name>
 ```
 
-a **new folde**r with the **project name** and starting files will be 
+a **new folder** with the **project name** and starting files will be 
 created in the place where you are currently
 
 - **run the project**
