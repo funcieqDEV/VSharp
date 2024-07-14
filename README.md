@@ -1,6 +1,7 @@
-<p align="center">
-  ## **V#**
+<p align="center" style="font-weight: bold; font-size: 2em;">
+  Twój wycentrowany i pogrubiony tekst
 </p>
+
 
 V# is a new and modern programming language. 
 characteristics:
