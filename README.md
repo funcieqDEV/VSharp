@@ -1,5 +1,5 @@
 <p align="center">
-<img src="art/vs_logo.png" width="300px">
+<img src="art/vs_logo.png" width="400px">
 </p>
 
 V# is a new and modern programming language. 
