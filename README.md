@@ -1,6 +1,6 @@
-<p align="center">
-# V#
-</p>
+<h1 align="center">
+
+</h1>
 
 V# is a new and modern programming language. 
 characteristics:
