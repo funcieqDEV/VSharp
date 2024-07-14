@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/funcieqDEV/VSharp/blob/main/art/vs_logo.png">
+    <source srcset="https://github.com/funcieqDEV/VSharp/blob/main/art/vs_logo.png">
   </picture>
 </p>
 
