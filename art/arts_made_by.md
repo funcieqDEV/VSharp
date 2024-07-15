@@ -1,1 +1,1 @@
-### vs_logo made by [Blackneed] (https://github.com/Blackneeed)
+### vs_logo made by [Blackneed](https://github.com/Blackneeed)
