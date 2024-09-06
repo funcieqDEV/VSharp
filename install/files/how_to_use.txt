@@ -1,1 +1,1 @@
-
+in cmd: VSharp run <file.vshrp>
