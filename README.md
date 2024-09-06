@@ -27,8 +27,8 @@ characteristics:
  at this point you can already use V#
 
 ### documentation
- You can find documentation on our [official website]([https://vsharp.pl](https://github.com/funcieqDEV/VSharp)) [not exsist right now!!!]
- or you can find it here on github 
+ You can find documentation on our [official website](https://github.com/funcieqDEV/VSharp)
+ or you can find it here on github [docs](https://github.com/funcieqDEV/VSharp-docs/tree/main)
 
 - **run the project**
 ```bash
