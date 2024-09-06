@@ -30,9 +30,6 @@ characteristics:
  You can find documentation on our [official website]([https://vsharp.pl](https://github.com/funcieqDEV/VSharp)) [not exsist right now!!!]
  or you can find it here on github 
 
-a **new folder** with the **project name** and starting files will be 
-created in the place where you are currently
-
 - **run the project**
 ```bash
 vsh run <file.vs>
