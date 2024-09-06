@@ -17,7 +17,7 @@ V# is a new and modern programming language.
 characteristics:
 - **it is an interpreted language**
 - **made in C#**
--  easy to learn
+-  **easy to learn**
 
 ### instalation
  - first you need to do is **download V#**
@@ -44,9 +44,3 @@ created in the place where you are currently
 vsh run <file.vs>
 ```
 
-
-- **install the library**
-```bash
-vsh install <library>
-```
- (i.e. either a link or a path from your computer)
