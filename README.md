@@ -16,8 +16,8 @@
 V# is a new and modern programming language. 
 characteristics:
 - **it is an interpreted language**
-- **variables and functions have specific types**
-- **comes with tons of built-in libraries**
+- **made in C#**
+-  easy to learn
 
 ### instalation
  - first you need to do is **download V#**
