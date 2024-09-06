@@ -1,0 +1,11 @@
+set age = 0
+
+println("How old are you?")
+input(age)
+ConvertToInt(age,age)
+if(age >= 18){
+  println("nice you are an adult")
+}
+  else {
+    println("you are not an adult")
+  }
