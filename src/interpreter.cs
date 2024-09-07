@@ -253,93 +253,109 @@ namespace VSharp
             }
         }
 
-        private object EvaluateBinaryOperation(BinaryOperationNode binaryOpNode)
+private object EvaluateBinaryOperation(BinaryOperationNode binaryOpNode)
+{
+    object left = EvaluateExpression(binaryOpNode.Left);
+    object right = EvaluateExpression(binaryOpNode.Right);
+
+    if (left is string leftString && right is string rightString)
+    {
+        return binaryOpNode.Operator switch
         {
-            object left = EvaluateExpression(binaryOpNode.Left);
-            object right = EvaluateExpression(binaryOpNode.Right);
+            "==" => leftString == rightString,
+            "!=" => leftString != rightString,
+            ">" => string.Compare(leftString, rightString) > 0,
+            "<" => string.Compare(leftString, rightString) < 0,
+            ">=" => string.Compare(leftString, rightString) >= 0,
+            "<=" => string.Compare(leftString, rightString) <= 0,
+            "+" => leftString + rightString, // Concatenation
+            _ => throw new Exception($"Unsupported operator for strings: {binaryOpNode.Operator}"),
+        };
+    }
 
-            if (left is string || right is string)
-            {
-                if (binaryOpNode.Operator == "+")
-                {
-                    return left.ToString() + right.ToString();
-                }
-                throw new Exception($"Unsupported string operator: {binaryOpNode.Operator}");
-            }
-
-            if (left is int leftInt && right is int rightInt)
-            {
-                return binaryOpNode.Operator switch
-                {
-                    "==" => leftInt == rightInt,
-                    "!=" => leftInt != rightInt,
-                    ">" => leftInt > rightInt,
-                    "<" => leftInt < rightInt,
-                    ">=" => leftInt >= rightInt,
-                    "<=" => leftInt <= rightInt,
-                    "+" => leftInt + rightInt,
-                    "-" => leftInt - rightInt,
-                    "*" => leftInt * rightInt,
-                    "/" => rightInt != 0 ? leftInt / rightInt : throw new DivideByZeroException(),
-                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-                };
-            }
-            else if (left is double leftDouble && right is double rightDouble)
-            {
-                return binaryOpNode.Operator switch
-                {
-                    "==" => leftDouble == rightDouble,
-                    "!=" => leftDouble != rightDouble,
-                    ">" => leftDouble > rightDouble,
-                    "<" => leftDouble < rightDouble,
-                    ">=" => leftDouble >= rightDouble,
-                    "<=" => leftDouble <= rightDouble,
-                    "+" => leftDouble + rightDouble,
-                    "-" => leftDouble - rightDouble,
-                    "*" => leftDouble * rightDouble,
-                    "/" => rightDouble != 0 ? leftDouble / rightDouble : throw new DivideByZeroException(),
-                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-                };
-            }
-            else if (left is int intLeft && right is double doubleRight)
-            {
-                return binaryOpNode.Operator switch
-                {
-                    "==" => intLeft == doubleRight,
-                    "!=" => intLeft != doubleRight,
-                    ">" => intLeft > doubleRight,
-                    "<" => intLeft < doubleRight,
-                    ">=" => intLeft >= doubleRight,
-                    "<=" => intLeft <= doubleRight,
-                    "+" => (double)intLeft + doubleRight,
-                    "-" => (double)intLeft - doubleRight,
-                    "*" => (double)intLeft * doubleRight,
-                    "/" => doubleRight != 0 ? (double)intLeft / doubleRight : throw new DivideByZeroException(),
-                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-                };
-            }
-            else if (left is double doubleLeft && right is int intRight)
-            {
-                return binaryOpNode.Operator switch
-                {
-                    "==" => doubleLeft == intRight,
-                    "!=" => doubleLeft != intRight,
-                    ">" => doubleLeft > intRight,
-                    "<" => doubleLeft < intRight,
-                    ">=" => doubleLeft >= intRight,
-                    "<=" => doubleLeft <= intRight,
-                    "+" => doubleLeft + (double)intRight,
-                    "-" => doubleLeft - (double)intRight,
-                    "*" => doubleLeft * (double)intRight,
-                    "/" => intRight != 0 ? doubleLeft / (double)intRight : throw new DivideByZeroException(),
-                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-                };
-            }
-            else
-            {
-                throw new Exception("Type mismatch in binary operation.");
-            }
+    if (left is string || right is string)
+    {
+        if (binaryOpNode.Operator == "+")
+        {
+            return left.ToString() + right.ToString();
         }
+        throw new Exception($"Unsupported operator for mixed types involving strings: {binaryOpNode.Operator}");
+    }
+
+    if (left is int leftInt && right is int rightInt)
+    {
+        return binaryOpNode.Operator switch
+        {
+            "==" => leftInt == rightInt,
+            "!=" => leftInt != rightInt,
+            ">" => leftInt > rightInt,
+            "<" => leftInt < rightInt,
+            ">=" => leftInt >= rightInt,
+            "<=" => leftInt <= rightInt,
+            "+" => leftInt + rightInt,
+            "-" => leftInt - rightInt,
+            "*" => leftInt * rightInt,
+            "/" => rightInt != 0 ? leftInt / rightInt : throw new DivideByZeroException(),
+            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+        };
+    }
+    else if (left is double leftDouble && right is double rightDouble)
+    {
+        return binaryOpNode.Operator switch
+        {
+            "==" => leftDouble == rightDouble,
+            "!=" => leftDouble != rightDouble,
+            ">" => leftDouble > rightDouble,
+            "<" => leftDouble < rightDouble,
+            ">=" => leftDouble >= rightDouble,
+            "<=" => leftDouble <= rightDouble,
+            "+" => leftDouble + rightDouble,
+            "-" => leftDouble - rightDouble,
+            "*" => leftDouble * rightDouble,
+            "/" => rightDouble != 0 ? leftDouble / rightDouble : throw new DivideByZeroException(),
+            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+        };
+    }
+    else if (left is int intLeft && right is double doubleRight)
+    {
+        return binaryOpNode.Operator switch
+        {
+            "==" => intLeft == doubleRight,
+            "!=" => intLeft != doubleRight,
+            ">" => intLeft > doubleRight,
+            "<" => intLeft < doubleRight,
+            ">=" => intLeft >= doubleRight,
+            "<=" => intLeft <= doubleRight,
+            "+" => (double)intLeft + doubleRight,
+            "-" => (double)intLeft - doubleRight,
+            "*" => (double)intLeft * doubleRight,
+            "/" => doubleRight != 0 ? (double)intLeft / doubleRight : throw new DivideByZeroException(),
+            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+        };
+    }
+    else if (left is double doubleLeft && right is int intRight)
+    {
+        return binaryOpNode.Operator switch
+        {
+            "==" => doubleLeft == intRight,
+            "!=" => doubleLeft != intRight,
+            ">" => doubleLeft > intRight,
+            "<" => doubleLeft < intRight,
+            ">=" => doubleLeft >= intRight,
+            "<=" => doubleLeft <= intRight,
+            "+" => doubleLeft + (double)intRight,
+            "-" => doubleLeft - (double)intRight,
+            "*" => doubleLeft * (double)intRight,
+            "/" => intRight != 0 ? doubleLeft / (double)intRight : throw new DivideByZeroException(),
+            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+        };
+    }
+    else
+    {
+        throw new Exception("Type mismatch in binary operation.");
+    }
+}
+
 
         private object ParseLiteral(string literal)
         {
