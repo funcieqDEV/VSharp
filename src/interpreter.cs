@@ -6,9 +6,9 @@ namespace VSharp
 {
     public class Interpreter
     {
-        private Dictionary<string, object> _variables = new Dictionary<string, object>(); 
-        private Dictionary<string, FuncStatementNode> _functions = new Dictionary<string, FuncStatementNode>(); 
-        private Dictionary<string, object> _localVariables = new Dictionary<string, object>(); 
+        private Dictionary<string, object> _variables = new Dictionary<string, object>();
+        private Dictionary<string, FuncStatementNode> _functions = new Dictionary<string, FuncStatementNode>();
+        private Dictionary<string, object> _localVariables = new Dictionary<string, object>();
 
         public void Interpret(ProgramNode program)
         {
@@ -35,53 +35,49 @@ namespace VSharp
                 case IfNode ifStmt:
                     ExecuteIfStatement(ifStmt);
                     break;
-                case PrintlnStatementNode p:
-                    ExecutePrintlnStatement(p);
+                case PrintlnStatementNode printlnStmt:
+                    ExecutePrintlnStatement(printlnStmt);
                     break;
-                case WhileStatementNode w:
-                    ExecuteWhileStatemnt(w);
+                case WhileStatementNode whileStmt:
+                    ExecuteWhileStatement(whileStmt);
                     break;
-                case ConvertToIntStatamentNode cti:
-                    ExecuteConvertToIntStatement(cti);
+                case ConvertToIntStatementNode ctiStmt:
+                    ExecuteConvertToIntStatement(ctiStmt);
                     break;
-                case ForgroundColorStatementNode color:
-                    ExecuteForgroundColorStatement(color);
+                case ForegroundColorStatementNode colorStmt:
+                    ExecuteForegroundColorStatement(colorStmt);
                     break;
-                case FuncStatementNode func:
-                    ExecuteFuncStatement(func);
+                case FuncStatementNode funcStmt:
+                    ExecuteFuncStatement(funcStmt);
                     break;
                 case FuncCallNode funcCall:
                     ExecuteFuncCall(funcCall);
                     break;
                 default:
-                    
                     break;
             }
         }
 
         private void ExecuteFuncCall(FuncCallNode funcCall)
         {
-            var funcName = funcCall.funcName;
+            var funcName = funcCall.FuncName;
 
-         
             if (!_functions.ContainsKey(funcName))
             {
                 throw new Exception($"Undefined function: {funcName}");
             }
 
             var func = _functions[funcName];
-            var funcArgs = func.args.names;
-            var callArgs = funcCall.args;
+            var funcArgs = func.Args.Names;
+            var callArgs = funcCall.Args;
 
             if (funcArgs.Count != callArgs.Count)
             {
                 throw new Exception("Argument count mismatch.");
             }
 
-       
             _localVariables = new Dictionary<string, object>();
 
-         
             for (int i = 0; i < funcArgs.Count; i++)
             {
                 var argName = funcArgs[i];
@@ -94,21 +90,12 @@ namespace VSharp
                 ExecuteStatement(stmt);
             }
 
-         
             _localVariables.Clear();
-        }
-
-
-        private void ExecuteFuncSetNode(ASTNode v, string fName)
-        {
-            var setStmt = (SetStatementNode)v;
-            var varName = setStmt.VariableName;
-            _localVariables[varName] = EvaluateExpression(setStmt.Expression);
         }
 
         private void ExecuteFuncStatement(FuncStatementNode funcStmt)
         {
-            _functions[funcStmt.name] = funcStmt;
+            _functions[funcStmt.Name] = funcStmt;
         }
 
         private void ExecuteSetStatement(SetStatementNode setStmt)
@@ -125,32 +112,32 @@ namespace VSharp
 
         private void ExecuteInputStatement(InputStatementNode inputStmt)
         {
-            string VarName = inputStmt.VarName;
-            _variables[VarName] = Console.ReadLine();
+            string varName = inputStmt.VarName;
+            _variables[varName] = Console.ReadLine();
         }
 
-        private void ExecutePrintlnStatement(PrintlnStatementNode println)
+        private void ExecutePrintlnStatement(PrintlnStatementNode printlnStmt)
         {
-            object value = EvaluateExpression(println.Expression);
+            object value = EvaluateExpression(printlnStmt.Expression);
             Console.WriteLine(value);
         }
 
-        private void ExecuteWhileStatemnt(WhileStatementNode whileStmt)
+        private void ExecuteWhileStatement(WhileStatementNode whileStmt)
         {
-            bool result = EvaluateConditions(whileStmt.Conditions);
+            bool result = EvaluateCondition(whileStmt.Condition);
             while (result)
             {
                 foreach (var statement in whileStmt.TrueBlock.Statements)
                 {
                     ExecuteStatement(statement);
                 }
-                result = EvaluateConditions(whileStmt.Conditions);
+                result = EvaluateCondition(whileStmt.Condition);
             }
         }
 
         private void ExecuteIfStatement(IfNode ifStmt)
         {
-            bool result = EvaluateConditions(ifStmt.Conditions);
+            bool result = EvaluateCondition(ifStmt.Condition);
 
             if (result)
             {
@@ -161,23 +148,26 @@ namespace VSharp
             }
             else
             {
-                foreach (var statement in ifStmt.FalseBlock.Statements)
+                if (ifStmt.FalseBlock != null)
                 {
-                    ExecuteStatement(statement);
+                    foreach (var statement in ifStmt.FalseBlock.Statements)
+                    {
+                        ExecuteStatement(statement);
+                    }
                 }
             }
         }
 
-        private void ExecuteConvertToIntStatement(ConvertToIntStatamentNode cti)
+        private void ExecuteConvertToIntStatement(ConvertToIntStatementNode ctiStmt)
         {
-            var value = EvaluateExpression(cti.Expr);
-            var name = cti.VarName;
+            var value = EvaluateExpression(ctiStmt.Expr);
+            var name = ctiStmt.VarName;
             _variables[name] = Convert.ToInt32(value);
         }
 
-        private void ExecuteForgroundColorStatement(ForgroundColorStatementNode color)
+        private void ExecuteForegroundColorStatement(ForegroundColorStatementNode colorStmt)
         {
-            string colorName = Convert.ToString(EvaluateExpression(color.ColorName));
+            string colorName = Convert.ToString(EvaluateExpression(colorStmt.ColorName));
             colorName = colorName.ToLower();
             switch (colorName)
             {
@@ -200,7 +190,7 @@ namespace VSharp
                     Console.ForegroundColor = ConsoleColor.Gray;
                     break;
                 case "white":
-                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
                     break;
                 case "cyan":
                     Console.ForegroundColor = ConsoleColor.Cyan;
@@ -211,35 +201,19 @@ namespace VSharp
                 case "darkgray":
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     break;
+                default:
+                    throw new Exception($"Unsupported color: {colorName}");
             }
         }
 
-        private bool EvaluateConditions(List<LogicalNode> conditions)
+        private bool EvaluateCondition(ASTNode condition)
         {
-            if (conditions == null || conditions.Count == 0)
+            return condition switch
             {
-                return false;
-            }
-
-            bool result = EvaluateLogicalNode(conditions[0]);
-
-            for (int i = 1; i < conditions.Count; i++)
-            {
-                Token op = conditions[i - 1].Operator;
-                switch (op.Type)
-                {
-                    case TokenType.LogicalAnd:
-                        result = result && EvaluateLogicalNode(conditions[i]);
-                        break;
-                    case TokenType.LogicalOr:
-                        result = result || EvaluateLogicalNode(conditions[i]);
-                        break;
-                    default:
-                        throw new Exception($"Unsupported logical operator: {op.Type}");
-                }
-            }
-
-            return result;
+                LogicalNode logicalNode => EvaluateLogicalNode(logicalNode),
+                BinaryOperationNode binaryOpNode => Convert.ToBoolean(EvaluateBinaryOperation(binaryOpNode)),
+                _ => throw new Exception($"Unsupported condition type: {condition.GetType().Name}")
+            };
         }
 
         private bool EvaluateLogicalNode(LogicalNode node)
@@ -275,7 +249,6 @@ namespace VSharp
             }
         }
 
-
         private object EvaluateExpression(ASTNode node)
         {
             switch (node)
@@ -284,7 +257,6 @@ namespace VSharp
                     return ParseLiteral(literalNode.Value);
 
                 case IdentifierNode identifierNode:
-                  
                     if (_localVariables.ContainsKey(identifierNode.Name))
                         return _localVariables[identifierNode.Name];
 
@@ -387,32 +359,6 @@ namespace VSharp
             {
                 throw new Exception("Type mismatch in binary operation.");
             }
-        }
-
-
-
-        private object EvaluateArithmeticOperation(int left, int right, string operatorSymbol)
-        {
-            return operatorSymbol switch
-            {
-                "+" => left + right,
-                "-" => left - right,
-                "*" => left * right,
-                "/" => right != 0 ? left / right : throw new DivideByZeroException(),
-                _ => throw new Exception($"Unsupported operator: {operatorSymbol}"),
-            };
-        }
-
-        private object EvaluateArithmeticOperation(double left, double right, string operatorSymbol)
-        {
-            return operatorSymbol switch
-            {
-                "+" => left + right,
-                "-" => left - right,
-                "*" => left * right,
-                "/" => right != 0 ? left / right : throw new DivideByZeroException(),
-                _ => throw new Exception($"Unsupported operator: {operatorSymbol}"),
-            };
         }
 
         private object ParseLiteral(string literal)
