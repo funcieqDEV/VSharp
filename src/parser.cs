@@ -4,7 +4,6 @@ using VSharp;
 
 namespace VSharp
 {
-
     public abstract class ASTNode { }
 
     public class ProgramNode : ASTNode
@@ -17,40 +16,37 @@ namespace VSharp
         }
     }
 
-    public class argNode : ASTNode
+    public class ArgNode : ASTNode
     {
-        public List<string> names { get; set; }
-        public argNode()
+        public List<string> Names { get; set; }
+
+        public ArgNode()
         {
-            names = new List<string>();
+            Names = new List<string>();
         }
-
-
     }
-
 
     public class FuncCallNode : ASTNode
     {
-        
-        public List<ASTNode> args { get; set; }
-        public string funcName { get; set; }
+        public List<ASTNode> Args { get; set; }
+        public string FuncName { get; set; }
 
         public FuncCallNode()
         {
-            args = new List<ASTNode>();
+            Args = new List<ASTNode>();
         }
     }
+
     public class FuncStatementNode : ASTNode
     {
-
-        public string name { get; set; }
-        public argNode args { get; set; }
+        public string Name { get; set; }
+        public ArgNode Args { get; set; }
         public BlockNode Block { get; set; }
-        public Dictionary<string,object> _vars { get; set; }
+        public Dictionary<string, object> Vars { get; set; }
 
         public FuncStatementNode()
         {
-            args = new argNode();
+            Args = new ArgNode();
             Block = new BlockNode();
         }
     }
@@ -58,29 +54,30 @@ namespace VSharp
     public class BlockNode : ASTNode
     {
         public List<ASTNode> Statements { get; }
+
         public BlockNode()
         {
             Statements = new List<ASTNode>();
         }
-        public BlockNode(List<ASTNode> stmts)
+
+        public BlockNode(List<ASTNode> statements)
         {
-            Statements = stmts;
+            Statements = statements;
         }
     }
 
-    public class ForgroundColorStatementNode : ASTNode
+    public class ForegroundColorStatementNode : ASTNode
     {
         public ASTNode ColorName { get; set; }
 
-        public ForgroundColorStatementNode()
+        public ForegroundColorStatementNode()
         {
-
         }
     }
 
     public class IfNode : ASTNode
     {
-        public List<LogicalNode> Conditions { get; set; }
+        public ASTNode Condition { get; set; }
         public BlockNode TrueBlock { get; set; }
         public BlockNode FalseBlock { get; set; }
 
@@ -88,18 +85,16 @@ namespace VSharp
         {
             TrueBlock = new BlockNode();
             FalseBlock = new BlockNode();
-            Conditions = new List<LogicalNode>();
         }
     }
 
     public class WhileStatementNode : ASTNode
     {
-        public List<LogicalNode> Conditions { get; set; }
+        public ASTNode Condition { get; set; }
         public BlockNode TrueBlock { get; set; }
 
         public WhileStatementNode()
         {
-            Conditions = new List<LogicalNode>();
             TrueBlock = new BlockNode();
         }
     }
@@ -126,23 +121,23 @@ namespace VSharp
         }
     }
 
-    public class ConvertToIntStatamentNode : ASTNode
+    public class ConvertToIntStatementNode : ASTNode
     {
         public ASTNode Expr { get; set; }
         public string VarName { get; set; }
 
-        public ConvertToIntStatamentNode()
+        public ConvertToIntStatementNode()
         {
-
         }
     }
 
     public class PrintlnStatementNode : ASTNode
     {
         public ASTNode Expression { get; }
-        public PrintlnStatementNode(ASTNode expr)
+
+        public PrintlnStatementNode(ASTNode expression)
         {
-            Expression = expr;
+            Expression = expression;
         }
     }
 
@@ -150,9 +145,9 @@ namespace VSharp
     {
         public string VarName { get; }
 
-        public InputStatementNode(string name)
+        public InputStatementNode(string varName)
         {
-            VarName = name;
+            VarName = varName;
         }
     }
 
@@ -203,7 +198,6 @@ namespace VSharp
             Right = right;
         }
     }
-
 
     public class Parser
     {
@@ -257,7 +251,6 @@ namespace VSharp
                 default:
                     _position++;
                     return null;
-                    // throw new Exception($"Unexpected token: {current}");
             }
         }
 
@@ -267,13 +260,10 @@ namespace VSharp
             var name = Consume(TokenType.Identifier, "Expected function name.");
             Consume(TokenType.LeftParen, "Expected '(' after function name.");
 
-            
             while (Peek().Type != TokenType.RightParen)
             {
-                
-                funcCall.args.Add(ParseExpression());
+                funcCall.Args.Add(ParseExpression());
 
-                
                 if (Peek().Type == TokenType.Comma)
                 {
                     Consume(TokenType.Comma, "Expected ',' after argument.");
@@ -281,127 +271,112 @@ namespace VSharp
             }
 
             Consume(TokenType.RightParen, "Expected ')' after arguments.");
-            funcCall.funcName = name.Value;
+            funcCall.FuncName = name.Value;
             return funcCall;
         }
 
         private FuncStatementNode ParseFuncStatement()
         {
-            FuncStatementNode funcStatement = new FuncStatementNode();
             Consume(TokenType.KeywordFunc, "Expected 'func' keyword");
             var name = Consume(TokenType.Identifier, "Expected function name");
-            argNode args = new argNode();
-            args = ParseArgs();
-            BlockNode block = new BlockNode();
-            block = ParseBlockNode();
-            FuncStatementNode func = new FuncStatementNode();
-            func.args = args;
-            func.Block = block;
-            func.name = name.Value;
+            ArgNode args = ParseArgs();
+            BlockNode block = ParseBlockNode();
+            FuncStatementNode func = new FuncStatementNode
+            {
+                Args = args,
+                Block = block,
+                Name = name.Value
+            };
             return func;
         }
 
-        private argNode ParseArgs()
+        private ArgNode ParseArgs()
         {
-            argNode arg = new argNode();
-            Consume(TokenType.LeftParen, "Expected '(' after 'func' ");
+            ArgNode arg = new ArgNode();
+            Consume(TokenType.LeftParen, "Expected '(' after 'func'");
             while (Peek().Type != TokenType.RightParen)
             {
-
                 if (Peek().Type == TokenType.Comma)
                 {
                     Consume(TokenType.Comma, "Expected ',' after argument");
                 }
                 if (Peek().Type == TokenType.Identifier)
                 {
-
-                    arg.names.Add(Peek().Value);
-
+                    arg.Names.Add(Peek().Value);
                     _position++;
                 }
-
-
             }
             Consume(TokenType.RightParen, "Expected ')' after arguments");
-            
+
             return arg;
         }
-        private ForgroundColorStatementNode ParseForegroundColorStatement()
+
+        private ForegroundColorStatementNode ParseForegroundColorStatement()
         {
             Consume(TokenType.KeywordForegroundColor, "Expected 'color' keyword.");
             Consume(TokenType.LeftParen, "Expected '(' after 'color'.");
             var colorName = ParseExpression();
             Consume(TokenType.RightParen, "Expected ')' after color name.");
-            return new ForgroundColorStatementNode() { ColorName = colorName };
+            return new ForegroundColorStatementNode { ColorName = colorName };
         }
 
-        private ConvertToIntStatamentNode ParseConvertToIntStatement()
+        private ConvertToIntStatementNode ParseConvertToIntStatement()
         {
             Consume(TokenType.KeywordConvertToInt, "Expected 'ConvertToInt' keyword");
             Consume(TokenType.LeftParen, "Expected '(' after 'ConvertToInt'");
             var expr = ParseExpression();
             Consume(TokenType.Comma, "Expected ',' after expression");
             var name = Consume(TokenType.Identifier, "Expected variable name");
-            Consume(TokenType.RightParen, "Expexted ')' after variable name");
-            ConvertToIntStatamentNode cti = new ConvertToIntStatamentNode();
-            cti.Expr = expr;
-            cti.VarName = name.Value;
-            return cti;
+            Consume(TokenType.RightParen, "Expected ')' after variable name");
+            return new ConvertToIntStatementNode
+            {
+                Expr = expr,
+                VarName = name.Value
+            };
         }
 
         private WhileStatementNode ParseWhileStatement()
         {
             Consume(TokenType.KeywordWhile, "Expected 'while' keyword");
             Consume(TokenType.LeftParen, "Expected '(' after 'while'");
-            var conditions = ParseLogicalNode();
-            Consume(TokenType.RightParen, "Expected ')' after conditions");
-            var Block = ParseBlockNode();
-            WhileStatementNode _while = new WhileStatementNode();
-            _while.Conditions = conditions;
-            _while.TrueBlock = Block;
-            return _while;
+            var condition = ParseComparison();
+            Consume(TokenType.RightParen, "Expected ')' after condition");
+            var trueBlock = ParseBlockNode();
+            return new WhileStatementNode
+            {
+                Condition = condition,
+                TrueBlock = trueBlock
+            };
         }
 
         private IfNode ParseIfStatement()
         {
             Consume(TokenType.KeywordIf, "Expected 'if' keyword");
             Consume(TokenType.LeftParen, "Expected '(' after 'if'");
-            var conditions = ParseLogicalNode();
+            var condition = ParseComparison();
             Consume(TokenType.RightParen, "Expected ')' after condition");
-            var TrueBlock = ParseBlockNode();
-            IfNode _if = new IfNode();
-            _if.Conditions = conditions;
-            _if.TrueBlock = TrueBlock;
-            if (Peek().Type == TokenType.KeywordElse){
-                Consume(TokenType.KeywordElse,"Expected 'else' keyword");
-                var FalseBlock = ParseBlockNode();
-                _if.FalseBlock = FalseBlock;
-            }
-            return _if;
-        }
-        private List<LogicalNode> ParseLogicalNode()
-        {
-            List<LogicalNode> conditions = new List<LogicalNode>();
-            ASTNode left = ParseComparison();
-
-            while (Peek().Type == TokenType.LogicalAnd || Peek().Type == TokenType.LogicalOr)
+            var trueBlock = ParseBlockNode();
+            var ifNode = new IfNode
             {
-                Token logicalOp = NextToken();
-                ASTNode right = ParseComparison();
-                conditions.Add(new LogicalNode(left, logicalOp, right));
-                left = right;
+                Condition = condition,
+                TrueBlock = trueBlock
+            };
+            if (Peek().Type == TokenType.KeywordElse)
+            {
+                Consume(TokenType.KeywordElse, "Expected 'else' keyword");
+                var falseBlock = ParseBlockNode();
+                ifNode.FalseBlock = falseBlock;
             }
-
-            return conditions;
+            return ifNode;
         }
 
         private ASTNode ParseComparison()
         {
             ASTNode left = ParseExpression();
 
-            while (Peek().Type == TokenType.Greater || Peek().Type == TokenType.Less ||
-                   Peek().Type == TokenType.Equal || Peek().Type == TokenType.NotEqual ||
-                   Peek().Type == TokenType.GreaterEqual || Peek().Type == TokenType.LessEqual)
+            if (Peek().Type == TokenType.Greater || Peek().Type == TokenType.Less ||
+                Peek().Type == TokenType.Equal || Peek().Type == TokenType.NotEqual ||
+                Peek().Type == TokenType.GreaterEqual || Peek().Type == TokenType.LessEqual)
             {
                 Token comparisonOp = NextToken();
                 ASTNode right = ParseExpression();
@@ -415,9 +390,7 @@ namespace VSharp
         {
             List<ASTNode> statements = new List<ASTNode>();
 
-
             Consume(TokenType.LeftBrace, "Expected '{'");
-
 
             while (!IsAtEnd() && Peek().Type != TokenType.RightBrace)
             {
@@ -426,24 +399,24 @@ namespace VSharp
 
             Consume(TokenType.RightBrace, "Expected '}'");
 
-
             return new BlockNode(statements);
         }
+
         private InputStatementNode ParseInputStatement()
         {
             Consume(TokenType.KeywordInput, "Expected 'input' keyword");
-            Consume(TokenType.LeftParen, "Expected '(' after 'input' ");
-            Token id = Consume(TokenType.Identifier, "Expected  variable name");
+            Consume(TokenType.LeftParen, "Expected '(' after 'input'");
+            Token id = Consume(TokenType.Identifier, "Expected variable name");
             Consume(TokenType.RightParen, "Expected ')' after variable name");
             return new InputStatementNode(id.Value);
         }
+
         private SetStatementNode ParseSetStatement()
         {
             Consume(TokenType.KeywordSet, "Expected 'set' keyword.");
             Token identifier = Consume(TokenType.Identifier, "Expected variable name.");
             Consume(TokenType.Assignment, "Expected '=' after variable name.");
             ASTNode expression = ParseExpression();
-
             return new SetStatementNode(identifier.Value, expression);
         }
 
@@ -453,7 +426,6 @@ namespace VSharp
             Consume(TokenType.LeftParen, "Expected '(' after 'print'.");
             ASTNode expression = ParseExpression();
             Consume(TokenType.RightParen, "Expected ')' after expression.");
-
             return new PrintStatementNode(expression);
         }
 
@@ -468,10 +440,6 @@ namespace VSharp
 
         private ASTNode ParseExpression()
         {
-            if (Peek().Type == TokenType.LogicalAnd)
-            {
-                return null;
-            }
             return ParseTerm();
         }
 
@@ -517,12 +485,7 @@ namespace VSharp
                 case TokenType.Identifier:
                     NextToken();
                     return new IdentifierNode(current.Value);
-                case TokenType.LogicalAnd:
-                    _position++;
-                    return null;
-
                 default:
-
                     throw new Exception($"Unexpected token: {current}");
             }
         }
@@ -555,4 +518,3 @@ namespace VSharp
         }
     }
 }
-
