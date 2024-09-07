@@ -1,1 +1,2 @@
 in cmd: VSharp run <file.vshrp>
+<file.vshrp> is full path to the file for example: C:\Users\user\Desktop\main.vshrp
