@@ -151,6 +151,18 @@ namespace VSharp
                         _position++;
                     }
                 }
+                else if (currentChar == '/')
+                {
+                    if (LookAhead() == '/')
+                    {
+                        
+                        while (_position < _input.Length && _input[_position] != '\n')
+                        {
+                            _position++;
+                        }
+                        continue; 
+                    }
+                }
                 else if (currentChar == '>')
                 {
                     if (LookAhead() == '=')
@@ -254,7 +266,7 @@ namespace VSharp
 
         private Token ReadString()
         {
-            int start = ++_position; // Skip the opening quote
+            int start = ++_position; 
             while (_position < _input.Length && _input[_position] != '"')
             {
                 _position++;
