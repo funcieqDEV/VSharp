@@ -218,35 +218,15 @@ namespace VSharp
 
         private bool EvaluateLogicalNode(LogicalNode node)
         {
-            object left = EvaluateExpression(node.Left);
-            object right = EvaluateExpression(node.Right);
+            bool left = Convert.ToBoolean(EvaluateExpression(node.Left));
+            bool right = Convert.ToBoolean(EvaluateExpression(node.Right));
 
-            if (!(left is IComparable) || !(right is IComparable))
+            return node.Operator.Type switch
             {
-                throw new Exception("Operands are not comparable");
-            }
-
-            switch (node.Operator.Type)
-            {
-                case TokenType.LogicalAnd:
-                    return Convert.ToBoolean(left) && Convert.ToBoolean(right);
-                case TokenType.LogicalOr:
-                    return Convert.ToBoolean(left) || Convert.ToBoolean(right);
-                case TokenType.Greater:
-                    return Comparer<object>.Default.Compare(left, right) > 0;
-                case TokenType.Less:
-                    return Comparer<object>.Default.Compare(left, right) < 0;
-                case TokenType.Equal:
-                    return Comparer<object>.Default.Compare(left, right) == 0;
-                case TokenType.NotEqual:
-                    return Comparer<object>.Default.Compare(left, right) != 0;
-                case TokenType.GreaterEqual:
-                    return Comparer<object>.Default.Compare(left, right) >= 0;
-                case TokenType.LessEqual:
-                    return Comparer<object>.Default.Compare(left, right) <= 0;
-                default:
-                    throw new Exception($"Unsupported logical operator: {node.Operator.Type}");
-            }
+                TokenType.LogicalAnd => left && right,
+                TokenType.LogicalOr => left || right,
+                _ => throw new Exception($"Unsupported logical operator: {node.Operator.Type}")
+            };
         }
 
         private object EvaluateExpression(ASTNode node)
@@ -278,7 +258,7 @@ namespace VSharp
             object left = EvaluateExpression(binaryOpNode.Left);
             object right = EvaluateExpression(binaryOpNode.Right);
 
-            if (left is string leftStr || right is string rightStr)
+            if (left is string || right is string)
             {
                 if (binaryOpNode.Operator == "+")
                 {
