@@ -32,6 +32,6 @@ characteristics:
 
 - **run the project**
 ```bash
-vsh run <file.vs>
+VSharp run <file.vshrp>
 ```
 
