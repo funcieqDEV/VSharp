@@ -339,7 +339,7 @@ namespace VSharp
         {
             Consume(TokenType.KeywordWhile, "Expected 'while' keyword");
             Consume(TokenType.LeftParen, "Expected '(' after 'while'");
-            var condition = ParseComparison();
+            var condition = ParseLogicalExpression();
             Consume(TokenType.RightParen, "Expected ')' after condition");
             var trueBlock = ParseBlockNode();
             return new WhileStatementNode
@@ -353,7 +353,7 @@ namespace VSharp
         {
             Consume(TokenType.KeywordIf, "Expected 'if' keyword");
             Consume(TokenType.LeftParen, "Expected '(' after 'if'");
-            var condition = ParseComparison();
+            var condition = ParseLogicalExpression();
             Consume(TokenType.RightParen, "Expected ')' after condition");
             var trueBlock = ParseBlockNode();
             var ifNode = new IfNode
@@ -370,9 +370,23 @@ namespace VSharp
             return ifNode;
         }
 
+        private ASTNode ParseLogicalExpression()
+        {
+            ASTNode node = ParseComparison();
+
+            while (Peek().Type == TokenType.LogicalOr || Peek().Type == TokenType.LogicalAnd)
+            {
+                Token logicalOp = NextToken();
+                ASTNode right = ParseComparison();
+                node = new LogicalNode(node, logicalOp, right);
+            }
+
+            return node;
+        }
+
         private ASTNode ParseComparison()
         {
-            ASTNode left = ParseExpression();
+            ASTNode node = ParseExpression();
 
             if (Peek().Type == TokenType.Greater || Peek().Type == TokenType.Less ||
                 Peek().Type == TokenType.Equal || Peek().Type == TokenType.NotEqual ||
@@ -380,10 +394,10 @@ namespace VSharp
             {
                 Token comparisonOp = NextToken();
                 ASTNode right = ParseExpression();
-                left = new BinaryOperationNode(left, comparisonOp.Value, right);
+                node = new BinaryOperationNode(node, comparisonOp.Value, right);
             }
 
-            return left;
+            return node;
         }
 
         private BlockNode ParseBlockNode()
@@ -517,4 +531,5 @@ namespace VSharp
             return _position >= _tokens.Count;
         }
     }
+
 }
