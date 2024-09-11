@@ -1,7 +1,6 @@
 <p align="center">
 <img src="art/vs_logo.png" width="400px">
 </p>
->Current version 0.1.32<
 
 ![GitHub repo creation date](https://img.shields.io/badge/created-July%202024-brightgreen)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/funcieqDEV/VSharp)
@@ -26,6 +25,12 @@ characteristics:
  - the next step is to *run* **install.bat**
 
 at this point you can already use V#
+
+### Requirements 
+- **.net 7.0** install.bat will download the installer file for you 
+- the file editor can be a regular notepad
+- administrator permissions
+- Console
 
 ### documentation
  You can find documentation on our [official website](https://github.com/funcieqDEV/VSharp)
