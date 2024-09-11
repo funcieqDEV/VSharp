@@ -17,14 +17,14 @@ V# is a new and modern programming language.
 characteristics:
 - **it is an interpreted language**
 - **made in C#**
--  **easy to learn**
+- **easy to learn**
 
-### instalation
- - first you need to do is **download V#**
+### installation
+ - first you need to **download V#**
  - then **unzip** the file to a location you like
  - the next step is to *run* **install.bat**
 
- at this point you can already use V#
+at this point you can already use V#
 
 ### documentation
  You can find documentation on our [official website](https://github.com/funcieqDEV/VSharp)
