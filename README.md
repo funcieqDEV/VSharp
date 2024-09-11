@@ -36,6 +36,12 @@ at this point you can already use V#
 - **Download source**
 after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
 
+- **Create new project in Visual studio**
+once you create a new project you should add files from the **src** folder to your project
+
+- **Edit main.cs/program.cs**
+if you want use V# interpreter first you need to create a Lexer class with input(your V# code) as an argument, then create a Parser class
+
 
 
 ### documentation
