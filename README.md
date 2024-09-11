@@ -37,11 +37,11 @@ at this point you can already use V#
 after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
 
 - **Create new project in Visual studio**
-once you create a new project you should add files from the **src** folder to your project
+once you have created a new project you should add files from the **src** folder to your project
 
 - **Edit main.cs/program.cs**
 if you want use V# interpreter first you need to create a Lexer class with input(your V# code) as an argument,
-<br> then create a Parser class. In the Parser constructor use the Lexer method `Tokenize` as an argument which will return a list of tokens<br>
+<br> then create a Parser class. In the Parser constructor use the Lexer method `Tokenize` as an argument which will return a list of tokens<br> next step is create a Interpreter class and in constructor put Parser method `Parse` it will return ProgramNode, now you can use Interpreter method `Interpret`
 
 
 
