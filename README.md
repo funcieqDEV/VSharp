@@ -1,7 +1,7 @@
 <p align="center">
 <img src="art/vs_logo.png" width="400px">
 </p>
->_ V# version 0.1.32_
+>_V# version 0.1.32_
 
 ![GitHub repo creation date](https://img.shields.io/badge/created-July%202024-brightgreen)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/funcieqDEV/VSharp)
