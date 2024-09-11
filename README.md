@@ -32,6 +32,12 @@ at this point you can already use V#
 - administrator permissions
 - Console
 
+### Compilation
+- **Download source**
+after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
+
+
+
 ### documentation
  You can find documentation on our [official website](https://github.com/funcieqDEV/VSharp)
  or you can find it here on github [docs](https://github.com/funcieqDEV/VSharp-docs/tree/main)
