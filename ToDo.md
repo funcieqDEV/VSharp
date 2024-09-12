@@ -5,3 +5,7 @@
 > * code editor for V#
 > * reading and writing files
 > * http support
+> * arrays
+> * list
+> * structs
+> * classes
