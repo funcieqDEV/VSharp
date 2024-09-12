@@ -96,7 +96,7 @@ namespace VSharp
                 {
                     _position++;
                 }
-                else if (char.IsLetter(currentChar))
+                else if (char.IsLetter(currentChar) || currentChar == '$' || currentChar == '_')
                 {
                     tokens.Add(ReadIdentifierOrKeyword());
                 }
@@ -228,7 +228,7 @@ namespace VSharp
         private Token ReadIdentifierOrKeyword()
         {
             int start = _position;
-            while (_position < _input.Length && char.IsLetter(_input[_position]))
+            while (_position < _input.Length && (char.IsLetter(_input[_position]) || currentChar == '$' || currentChar == '_'))
             {
                 _position++;
             }
