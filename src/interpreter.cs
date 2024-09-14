@@ -1,173 +1,228 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+using System.Data;
 
 namespace VSharp
 {
-    public class Interpreter
-    {
-        private Dictionary<string, object> _variables = new Dictionary<string, object>();
-        private Dictionary<string, FuncStatementNode> _functions = new Dictionary<string, FuncStatementNode>();
-        private Dictionary<string, object> _localVariables = new Dictionary<string, object>();
 
+    interface Invokable
+    {
+        object? Invoke(List<object?> args, Interpreter interpreter);
+    }
+
+
+    public class VariableNotFoundError : Exception 
+    {
+        public VariableNotFoundError(string message) : base(message)
+        {
+        }
+    }
+
+    public class Variables
+    {
+        private Variables? _parent;
+
+        private Dictionary<string, object?> _variables;
+
+        public Variables() 
+        {
+            _parent = null; 
+            _variables = new Dictionary<string, object?>();
+        }
+
+        public bool HasVar(string name)
+        {
+            return _variables.ContainsKey(name) || (_parent?.HasVar(name) ?? false);
+        }
+
+        public void SetVar(string name, object? value) 
+        {
+            if (!_variables.ContainsKey(name) && (_parent?.HasVar(name) ?? false)) 
+            {
+                _parent.SetVar(name, value);
+                return;
+            }
+            _variables[name] = value;
+        }
+
+        public object? GetVar(string name) 
+        {
+            if (_variables.ContainsKey(name)) 
+            {
+                return _variables[name];
+            }
+
+            if (_parent != null) 
+            {
+                return _parent.GetVar(name);
+            }
+
+            throw new VariableNotFoundError(name);
+        }
+
+        public Variables Child()
+        {
+            return new Variables { _parent = this, _variables = new Dictionary<string, object?>() };
+        }
+    };
+
+    public class Function : Invokable {
+        public required List<string> Args { get; set;}
+        public required Expression Body {get; set;}
+
+        public required Variables CurriedScope { get; set;}
+
+        public object? Invoke(List<object?> args, Interpreter interpreter)
+        {
+            if (args.Count != Args.Count) 
+            {
+                throw new Exception("Invalid arg count");
+            }
+            Variables child = CurriedScope.Child();
+
+            foreach (var (name, value) in Args.Zip(args)) 
+            { 
+                child.SetVar(name ?? "", value);
+            }
+            return interpreter.EvaluateExpression(Body, child);
+        }
+    }
+
+    public class NativeFunc : Invokable {
+        Func<List<object?>, object?> _closure;
+
+        public static NativeFunc FromClosure(Func<List<object?>, object?> closure)
+        {
+            return new NativeFunc { _closure = closure };
+        }
+
+        public object? Invoke(List<object?> args, Interpreter interpreter)
+        {
+            return _closure(args);
+        }
+    }
+
+    public class Interpreter 
+    {
         public void Interpret(ProgramNode program)
         {
+            Variables variables = StdLibFactory.StdLib();
             foreach (var statement in program.Statements)
             {
-                ExecuteStatement(statement);
+                ExecuteStatement(statement, variables);
             }
         }
 
-        private void ExecuteStatement(ASTNode node)
+        object? ExecuteStatement(ASTNode node, Variables variables)
         {
             switch (node)
             {
                 case SetStatementNode setStmt:
-                    ExecuteSetStatement(setStmt);
+                    ExecuteSetStatement(setStmt, variables);
                     break;
 
                 case PrintStatementNode printStmt:
-                    ExecutePrintStatement(printStmt);
+                    ExecutePrintStatement(printStmt, variables);
                     break;
                 case InputStatementNode inputStmt:
-                    ExecuteInputStatement(inputStmt);
+                    ExecuteInputStatement(inputStmt, variables);
                     break;
-                case IfNode ifStmt:
-                    ExecuteIfStatement(ifStmt);
-                    break;
+    
                 case PrintlnStatementNode printlnStmt:
-                    ExecutePrintlnStatement(printlnStmt);
+                    ExecutePrintlnStatement(printlnStmt, variables);
                     break;
                 case WhileStatementNode whileStmt:
-                    ExecuteWhileStatement(whileStmt);
+                    ExecuteWhileStatement(whileStmt, variables);
                     break;
                 case ConvertToIntStatementNode ctiStmt:
-                    ExecuteConvertToIntStatement(ctiStmt);
+                    ExecuteConvertToIntStatement(ctiStmt, variables);
                     break;
                 case ForegroundColorStatementNode colorStmt:
-                    ExecuteForegroundColorStatement(colorStmt);
+                    ExecuteForegroundColorStatement(colorStmt, variables);
                     break;
                 case FuncStatementNode funcStmt:
-                    ExecuteFuncStatement(funcStmt);
+                    ExecuteFuncStatement(funcStmt, variables);
                     break;
-                case FuncCallNode funcCall:
-                    ExecuteFuncCall(funcCall);
-                    break;
+                case ExprStatement exprStatement:
+                    return EvaluateExpression(exprStatement.Expression, variables);
                 default:
-                    break;
+                    throw new Exception("Unhandled statement" + node);
             }
+            return null;
         }
 
-        private void ExecuteFuncCall(FuncCallNode funcCall)
+        void ExecuteFuncStatement(FuncStatementNode funcStatement, Variables variables) 
         {
-            var funcName = funcCall.FuncName;
-
-            if (!_functions.ContainsKey(funcName))
-            {
-                throw new Exception($"Undefined function: {funcName}");
-            }
-
-            var func = _functions[funcName];
-            var funcArgs = func.Args.Names;
-            var callArgs = funcCall.Args;
-
-            if (funcArgs.Count != callArgs.Count)
-            {
-                throw new Exception("Argument count mismatch.");
-            }
-
-            _localVariables = new Dictionary<string, object>();
-
-            for (int i = 0; i < funcArgs.Count; i++)
-            {
-                var argName = funcArgs[i];
-                var argValue = EvaluateExpression(callArgs[i]);
-                _localVariables[argName] = argValue;
-            }
-
-            foreach (var stmt in func.Block.Statements)
-            {
-                ExecuteStatement(stmt);
-            }
-
-            _localVariables.Clear();
+            Function function =  new Function { Args = funcStatement.Args.Names, Body = funcStatement.Block, CurriedScope= variables};
+            variables.SetVar(funcStatement.Name, function);
         }
 
-        private void ExecuteFuncStatement(FuncStatementNode funcStmt)
+
+        void ExecuteSetStatement(SetStatementNode setStmt, Variables variables)
         {
-            _functions[funcStmt.Name] = funcStmt;
+            object? value = EvaluateExpression(setStmt.Expression, variables);
+            variables.SetVar(setStmt.VariableName, value);
         }
 
-        private void ExecuteSetStatement(SetStatementNode setStmt)
+        void ExecutePrintStatement(PrintStatementNode printStmt, Variables variables)
         {
-            object value = EvaluateExpression(setStmt.Expression);
-            _variables[setStmt.VariableName] = value;
-        }
-
-        private void ExecutePrintStatement(PrintStatementNode printStmt)
-        {
-            object value = EvaluateExpression(printStmt.Expression);
+            object? value = EvaluateExpression(printStmt.Expression, variables);
             Console.Write(value);
         }
 
-        private void ExecuteInputStatement(InputStatementNode inputStmt)
+        void ExecuteInputStatement(InputStatementNode inputStmt, Variables variables)
         {
             string varName = inputStmt.VarName;
-            _variables[varName] = Console.ReadLine();
+            variables.SetVar(inputStmt.VarName, Console.ReadLine());
         }
 
-        private void ExecutePrintlnStatement(PrintlnStatementNode printlnStmt)
+        void ExecutePrintlnStatement(PrintlnStatementNode printlnStmt, Variables variables)
         {
-            object value = EvaluateExpression(printlnStmt.Expression);
+            object? value = EvaluateExpression(printlnStmt.Expression, variables);
             Console.WriteLine(value);
         }
 
-        private void ExecuteWhileStatement(WhileStatementNode whileStmt)
+        void ExecuteWhileStatement(WhileStatementNode whileStmt, Variables variables)
         {
-            bool result = EvaluateCondition(whileStmt.Condition);
-            while (result)
+            while (EvaluateExpression(whileStmt.Condition, variables) as bool? ?? false)
             {
-                foreach (var statement in whileStmt.TrueBlock.Statements)
-                {
-                    ExecuteStatement(statement);
-                }
-                result = EvaluateCondition(whileStmt.Condition);
+                EvaluateExpression(whileStmt.TrueBlock, variables);
             }
         }
 
-        private void ExecuteIfStatement(IfNode ifStmt)
+        object? ExecuteIfStatement(IfNode ifStmt, Variables variables)
         {
-            bool result = EvaluateCondition(ifStmt.Condition);
-
-            if (result)
+            bool cond = EvaluateExpression(ifStmt.Condition, variables) as bool? ?? false;
+            object? result = null;
+            if (cond)
             {
-                foreach (var statement in ifStmt.TrueBlock.Statements)
-                {
-                    ExecuteStatement(statement);
-                }
+                result = EvaluateExpression(ifStmt.TrueBlock, variables);
             }
             else
             {
                 if (ifStmt.FalseBlock != null)
                 {
-                    foreach (var statement in ifStmt.FalseBlock.Statements)
-                    {
-                        ExecuteStatement(statement);
-                    }
+                    result = EvaluateExpression(ifStmt.FalseBlock, variables);
                 }
             }
+            return result;
         }
 
-        private void ExecuteConvertToIntStatement(ConvertToIntStatementNode ctiStmt)
+        void ExecuteConvertToIntStatement(ConvertToIntStatementNode ctiStmt, Variables variables)
         {
-            var value = EvaluateExpression(ctiStmt.Expr);
+
+            var value = EvaluateExpression(ctiStmt.Expr, variables);
             var name = ctiStmt.VarName;
-            _variables[name] = Convert.ToInt32(value);
+            variables.SetVar(name, Convert.ToInt32(value));
         }
 
-        private void ExecuteForegroundColorStatement(ForegroundColorStatementNode colorStmt)
+        void ExecuteForegroundColorStatement(ForegroundColorStatementNode colorStmt, Variables variables)
         {
-            string colorName = Convert.ToString(EvaluateExpression(colorStmt.ColorName));
+            string colorName = EvaluateExpression(colorStmt.ColorName, variables) as string ?? "";
             colorName = colorName.ToLower();
             switch (colorName)
             {
@@ -206,171 +261,168 @@ namespace VSharp
             }
         }
 
-        private bool EvaluateCondition(ASTNode condition)
-        {
-            return condition switch
-            {
-                LogicalNode logicalNode => EvaluateLogicalNode(logicalNode),
-                BinaryOperationNode binaryOpNode => Convert.ToBoolean(EvaluateBinaryOperation(binaryOpNode)),
-                _ => throw new Exception($"Unsupported condition type: {condition.GetType().Name}")
-            };
-        }
+    
 
-        private bool EvaluateLogicalNode(LogicalNode node)
-        {
-            bool left = Convert.ToBoolean(EvaluateExpression(node.Left));
-            bool right = Convert.ToBoolean(EvaluateExpression(node.Right));
-
-            return node.Operator.Type switch
-            {
-                TokenType.LogicalAnd => left && right,
-                TokenType.LogicalOr => left || right,
-                _ => throw new Exception($"Unsupported logical operator: {node.Operator.Type}")
-            };
-        }
-
-        private object EvaluateExpression(ASTNode node)
+        public object? EvaluateExpression(Expression node, Variables variables)
         {
             switch (node)
             {
-                case LiteralNode literalNode:
-                    return ParseLiteral(literalNode.Value);
-
                 case IdentifierNode identifierNode:
-                    if (_localVariables.ContainsKey(identifierNode.Name))
-                        return _localVariables[identifierNode.Name];
-
-                    if (_variables.ContainsKey(identifierNode.Name))
-                        return _variables[identifierNode.Name];
-
-                    throw new Exception($"Undefined variable: {identifierNode.Name}");
-
+                    return variables.GetVar(identifierNode.Name);
                 case BinaryOperationNode binaryOpNode:
-                    return EvaluateBinaryOperation(binaryOpNode);
-
+                    return EvaluateBinaryOperation(binaryOpNode, variables);
+                case ConstArray array: 
+                    return LoadConstArray(array, variables);
+                case ConstInt i:
+                    return i.Value;
+                case ConstDouble d:
+                    return d.Value;
+                case ConstString s:
+                    return s.Value;
+                case Invokation i:
+                    return ExecuteInvokeOperation(i, variables);
+                case BlockNode n:
+                    return EvaluateBlockNode(n, variables);
+                case IfNode i:
+                    return ExecuteIfStatement(i, variables);
                 default:
                     throw new Exception($"Unsupported AST node type: {node.GetType().Name}");
             }
         }
 
-private object EvaluateBinaryOperation(BinaryOperationNode binaryOpNode)
-{
-    object left = EvaluateExpression(binaryOpNode.Left);
-    object right = EvaluateExpression(binaryOpNode.Right);
 
-    if (left is string leftString && right is string rightString)
-    {
-        return binaryOpNode.Operator switch
+        object? EvaluateBlockNode(BlockNode block, Variables variables) 
         {
-            "==" => leftString == rightString,
-            "!=" => leftString != rightString,
-            ">" => string.Compare(leftString, rightString) > 0,
-            "<" => string.Compare(leftString, rightString) < 0,
-            ">=" => string.Compare(leftString, rightString) >= 0,
-            "<=" => string.Compare(leftString, rightString) <= 0,
-            "+" => leftString + rightString, // Concatenation
-            _ => throw new Exception($"Unsupported operator for strings: {binaryOpNode.Operator}"),
-        };
-    }
-
-    if (left is string || right is string)
-    {
-        if (binaryOpNode.Operator == "+")
-        {
-            return left.ToString() + right.ToString();
-        }
-        throw new Exception($"Unsupported operator for mixed types involving strings: {binaryOpNode.Operator}");
-    }
-
-    if (left is int leftInt && right is int rightInt)
-    {
-        return binaryOpNode.Operator switch
-        {
-            "==" => leftInt == rightInt,
-            "!=" => leftInt != rightInt,
-            ">" => leftInt > rightInt,
-            "<" => leftInt < rightInt,
-            ">=" => leftInt >= rightInt,
-            "<=" => leftInt <= rightInt,
-            "+" => leftInt + rightInt,
-            "-" => leftInt - rightInt,
-            "*" => leftInt * rightInt,
-            "/" => rightInt != 0 ? leftInt / rightInt : throw new DivideByZeroException(),
-            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-        };
-    }
-    else if (left is double leftDouble && right is double rightDouble)
-    {
-        return binaryOpNode.Operator switch
-        {
-            "==" => leftDouble == rightDouble,
-            "!=" => leftDouble != rightDouble,
-            ">" => leftDouble > rightDouble,
-            "<" => leftDouble < rightDouble,
-            ">=" => leftDouble >= rightDouble,
-            "<=" => leftDouble <= rightDouble,
-            "+" => leftDouble + rightDouble,
-            "-" => leftDouble - rightDouble,
-            "*" => leftDouble * rightDouble,
-            "/" => rightDouble != 0 ? leftDouble / rightDouble : throw new DivideByZeroException(),
-            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-        };
-    }
-    else if (left is int intLeft && right is double doubleRight)
-    {
-        return binaryOpNode.Operator switch
-        {
-            "==" => intLeft == doubleRight,
-            "!=" => intLeft != doubleRight,
-            ">" => intLeft > doubleRight,
-            "<" => intLeft < doubleRight,
-            ">=" => intLeft >= doubleRight,
-            "<=" => intLeft <= doubleRight,
-            "+" => (double)intLeft + doubleRight,
-            "-" => (double)intLeft - doubleRight,
-            "*" => (double)intLeft * doubleRight,
-            "/" => doubleRight != 0 ? (double)intLeft / doubleRight : throw new DivideByZeroException(),
-            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-        };
-    }
-    else if (left is double doubleLeft && right is int intRight)
-    {
-        return binaryOpNode.Operator switch
-        {
-            "==" => doubleLeft == intRight,
-            "!=" => doubleLeft != intRight,
-            ">" => doubleLeft > intRight,
-            "<" => doubleLeft < intRight,
-            ">=" => doubleLeft >= intRight,
-            "<=" => doubleLeft <= intRight,
-            "+" => doubleLeft + (double)intRight,
-            "-" => doubleLeft - (double)intRight,
-            "*" => doubleLeft * (double)intRight,
-            "/" => intRight != 0 ? doubleLeft / (double)intRight : throw new DivideByZeroException(),
-            _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
-        };
-    }
-    else
-    {
-        throw new Exception("Type mismatch in binary operation.");
-    }
-}
-
-
-        private object ParseLiteral(string literal)
-        {
-            if (int.TryParse(literal, out int intValue))
+            object? result = null;
+            foreach(var item in block.Statements)
             {
-                return intValue;
+                result = ExecuteStatement(item, variables);
             }
-            else if (double.TryParse(literal, out double doubleValue))
+            return result;
+        }
+
+        object? ExecuteInvokeOperation(Invokation invoke, Variables variables)
+        {
+            Invokable? parent = EvaluateExpression(invoke.Parent, variables) as Invokable;
+            if (parent == null) {
+                throw new Exception("Cannot invoke " + parent);
+            }
+            List<object?> evaluatedArgs = invoke.Args.Select(it => EvaluateExpression(it, variables)).ToList();
+            return parent.Invoke(evaluatedArgs, this);
+        }
+
+        List<object?> LoadConstArray(ConstArray array, Variables variables)
+        {
+            List<object?> list = new List<object?>();
+            foreach (Expression expr in array.Expressions) {
+                list.Add(EvaluateExpression(expr, variables));
+            }
+            return list;
+        }
+
+        object EvaluateBinaryOperation(BinaryOperationNode binaryOpNode, Variables variables)
+        {
+            object? left = EvaluateExpression(binaryOpNode.Left, variables);
+            object? right = EvaluateExpression(binaryOpNode.Right, variables);
+
+            if (left is string leftString && right is string rightString)
             {
-                return doubleValue;
+                return binaryOpNode.Operator switch
+                {
+                    "==" => leftString == rightString,
+                    "!=" => leftString != rightString,
+                    ">" => string.Compare(leftString, rightString) > 0,
+                    "<" => string.Compare(leftString, rightString) < 0,
+                    ">=" => string.Compare(leftString, rightString) >= 0,
+                    "<=" => string.Compare(leftString, rightString) <= 0,
+                    "+" => leftString + rightString, // Concatenation
+                    _ => throw new Exception($"Unsupported operator for strings: {binaryOpNode.Operator}"),
+                };
+            }
+
+            if (left is string || right is string)
+            {
+                if (binaryOpNode.Operator == "+")
+                {
+                    return left?.ToString() + right?.ToString();
+                }
+                throw new Exception($"Unsupported operator for mixed types involving strings: {binaryOpNode.Operator}");
+            }
+
+            if (left is int leftInt && right is int rightInt)
+            {
+                return binaryOpNode.Operator switch
+                {
+                    "==" => leftInt == rightInt,
+                    "!=" => leftInt != rightInt,
+                    ">" => leftInt > rightInt,
+                    "<" => leftInt < rightInt,
+                    ">=" => leftInt >= rightInt,
+                    "<=" => leftInt <= rightInt,
+                    "+" => leftInt + rightInt,
+                    "-" => leftInt - rightInt,
+                    "*" => leftInt * rightInt,
+                    "/" => rightInt != 0 ? leftInt / rightInt : throw new DivideByZeroException(),
+                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+                };
+            }
+            else if (left is double leftDouble && right is double rightDouble)
+            {
+                return binaryOpNode.Operator switch
+                {
+                    "==" => leftDouble == rightDouble,
+                    "!=" => leftDouble != rightDouble,
+                    ">" => leftDouble > rightDouble,
+                    "<" => leftDouble < rightDouble,
+                    ">=" => leftDouble >= rightDouble,
+                    "<=" => leftDouble <= rightDouble,
+                    "+" => leftDouble + rightDouble,
+                    "-" => leftDouble - rightDouble,
+                    "*" => leftDouble * rightDouble,
+                    "/" => rightDouble != 0 ? leftDouble / rightDouble : throw new DivideByZeroException(),
+                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+                };
+            }
+            else if (left is int intLeft && right is double doubleRight)
+            {
+                return binaryOpNode.Operator switch
+                {
+                    "==" => intLeft == doubleRight,
+                    "!=" => intLeft != doubleRight,
+                    ">" => intLeft > doubleRight,
+                    "<" => intLeft < doubleRight,
+                    ">=" => intLeft >= doubleRight,
+                    "<=" => intLeft <= doubleRight,
+                    "+" => (double)intLeft + doubleRight,
+                    "-" => (double)intLeft - doubleRight,
+                    "*" => (double)intLeft * doubleRight,
+                    "/" => doubleRight != 0 ? (double)intLeft / doubleRight : throw new DivideByZeroException(),
+                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+                };
+            }
+            else if (left is double doubleLeft && right is int intRight)
+            {
+                return binaryOpNode.Operator switch
+                {
+                    "==" => doubleLeft == intRight,
+                    "!=" => doubleLeft != intRight,
+                    ">" => doubleLeft > intRight,
+                    "<" => doubleLeft < intRight,
+                    ">=" => doubleLeft >= intRight,
+                    "<=" => doubleLeft <= intRight,
+                    "+" => doubleLeft + (double)intRight,
+                    "-" => doubleLeft - (double)intRight,
+                    "*" => doubleLeft * (double)intRight,
+                    "/" => intRight != 0 ? doubleLeft / (double)intRight : throw new DivideByZeroException(),
+                    _ => throw new Exception($"Unsupported operator: {binaryOpNode.Operator}"),
+                };
             }
             else
             {
-                return literal;
+                throw new Exception("Type mismatch in binary operation.");
             }
         }
+    
     }
+
 }

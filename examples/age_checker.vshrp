@@ -1,11 +1,17 @@
-set age = 0
+set a = [1, 2, 3]
 
-println("How old are you?")
-input(age)
-ConvertToInt(age,age)
-if(age >= 18){
-  println("nice you are an adult")
-}
-  else {
-    println("you are not an adult")
+println(a)
+func foo(age) {
+  set result = if (age >= 18) {
+    "nice you are an adult"
   }
+  else {
+    "you are not an adult"
+  }
+  println(result)
+}
+
+set age = input(">")
+set age = int(age)
+foo(age)
+

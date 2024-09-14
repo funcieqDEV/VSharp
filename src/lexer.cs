@@ -9,12 +9,8 @@ namespace VSharp
     public enum TokenType
     {
         KeywordSet,
-        KeywordPrint,
-        KeywordPrintln,
-        KeywordInput,
         KeywordIf,
         KeywordElse,
-        KeywordConvertToInt,
         KeywordWhile,
         KeywordForegroundColor,
         KeywordFunc,
@@ -28,6 +24,8 @@ namespace VSharp
         RightParen,
         LeftBrace,
         RightBrace,
+        SquareOpen,
+        SquareClose,
         LogicalOr,
         LogicalAnd,
         Less,
@@ -37,7 +35,8 @@ namespace VSharp
         Equal,
         NotEqual,
         Comma,
-        EndOfInput
+        EndOfInput,
+        Dot
     }
 
     public class Token
@@ -65,16 +64,11 @@ namespace VSharp
         private static readonly Dictionary<string, TokenType> Keywords = new()
         {
             { "set", TokenType.KeywordSet },
-            { "print", TokenType.KeywordPrint },
-            { "input", TokenType.KeywordInput },
             { "if", TokenType.KeywordIf },
             { "else", TokenType.KeywordElse },
             { "or", TokenType.LogicalOr },
             { "and", TokenType.LogicalAnd },
-            { "println", TokenType.KeywordPrintln},
             { "while", TokenType.KeywordWhile},
-            { "ConvertToInt", TokenType.KeywordConvertToInt},
-            { "ForegroundColor", TokenType.KeywordForegroundColor},
             { "func", TokenType.KeywordFunc}
         };
 
@@ -199,6 +193,18 @@ namespace VSharp
                 else if (currentChar == '}')
                 {
                     tokens.Add(new Token(TokenType.RightBrace, "}"));
+                    _position++;
+                } else if (currentChar == '[') 
+                {
+                    tokens.Add(new Token(TokenType.SquareOpen, "["));
+                    _position++;
+                } else if (currentChar == '.') 
+                {
+                    tokens.Add(new Token(TokenType.Dot, "."));
+                    _position++;
+                } else if (currentChar == ']') 
+                {
+                    tokens.Add(new Token(TokenType.SquareClose, "]"));
                     _position++;
                 }
                 else
