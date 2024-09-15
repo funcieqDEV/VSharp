@@ -8,7 +8,6 @@ namespace VSharp
         public static Variables StdLib()
         {
             Variables vars = new Variables();
-
             vars.SetVar("println", NativeFunc.FromClosure((args) => {
                 foreach(var arg in args) {
                     Console.Write(arg);
@@ -29,6 +28,12 @@ namespace VSharp
                     string s => int.Parse(s),
                     _ => throw new Exception("Cannot cast to int")
                 };
+            }));
+
+
+            vars.SetVar("str", NativeFunc.FromClosure((args) =>
+            {
+                return args[0]?.ToString() ?? "null";
             }));
 
             var types = Assembly.GetExecutingAssembly()
@@ -63,11 +68,18 @@ namespace VSharp
         }
     }
 
-    
+    [AttributeUsage(AttributeTargets.Class)]
+    public class Module : Attribute
+    {
+
+    }
 }
 
 namespace VSharpLib 
 {
+    using VSharp;
+
+    [Module]
     class Io 
     {
         public void Println(object? arg)
@@ -81,11 +93,26 @@ namespace VSharpLib
             return Console.ReadLine();
         }
 
+
+        public string? Input()
+        {
+            return Console.ReadLine();
+        }
+
+
         public string ReadFile(string name)
         {
             return File.ReadAllText(name);
         }
 
+    }
+
+    class Object 
+    {
+        public VSharpObject New()
+        {
+            return new VSharpObject { Entries = new Dictionary<object, object?>() };
+        }
     }
 
 

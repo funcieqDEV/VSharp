@@ -32,13 +32,12 @@ namespace VSharp {
     public class FuncStatementNode : ASTNode
     {
         public string Name { get; set; }
-        public ArgNode Args { get; set; }
+        public List<string> Args { get; set; }
         public BlockNode Block { get; set; }
         public Dictionary<string, object> Vars { get; set; }
 
         public FuncStatementNode()
         {
-            Args = new ArgNode();
             Block = new BlockNode();
         }
     }
@@ -76,6 +75,13 @@ namespace VSharp {
             VariableName = variableName;
             Expression = expression;
         }
+    }
+
+    public class PropertyAssignment : ASTNode 
+    {
+        public required Expression Parent;
+        public required string Name;
+        public required Expression Value;
     }
 
     public class PrintStatementNode : ASTNode
@@ -148,7 +154,8 @@ namespace VSharp {
     }
 
 
-    public class ConstArray : Expression {
+    public class ConstArray : Expression 
+    {
         public List<Expression> Expressions;
 
         public ConstArray()
@@ -161,6 +168,19 @@ namespace VSharp {
             Expressions = expresions;
         }
     }
+
+    public class ConstObject : Expression 
+    {
+        public required Dictionary<string, Expression> Entries {get; set;}
+        
+    }
+
+    public class ConstFunction : Expression 
+    {
+        public required List<string> Args;
+        public required Expression Body;
+    }
+
 
     public class BinaryOperationNode : Expression
     {
@@ -178,9 +198,10 @@ namespace VSharp {
 
     public class PropertyAccess : Expression 
     {
-        public required Expression Parent {get; set; }
-        public required string Name {get; set; }
+        public required Expression Parent;
+        public required string Name;
     }
+
 
     public class MethodCall : Expression
     {

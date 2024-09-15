@@ -13,4 +13,4 @@ void RunCode(String path) {
 }
 
 
-RunCode("../../../examples/age_checker.vshrp");
+RunCode("./examples/age_checker.swift");

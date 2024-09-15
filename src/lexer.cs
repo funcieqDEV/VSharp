@@ -234,7 +234,7 @@ namespace VSharp
         private Token ReadIdentifierOrKeyword()
         {
             int start = _position;
-            while (_position < _input.Length && char.IsLetter(_input[_position]))
+            while (_position < _input.Length && (char.IsLetter(_input[_position]) || _input[_position] == '_'))
             {
                 _position++;
             }

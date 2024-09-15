@@ -1,4 +1,7 @@
 
+using System.Collections;
+using System.Runtime.InteropServices;
+
 namespace VSharp
 {
    
@@ -47,7 +50,7 @@ namespace VSharp
 
 
 
-        private ConstArray ParseArray() 
+        private Expression ParseArray() 
         {
             Consume(TokenType.SquareOpen, "");
             if (Peek().Type == TokenType.SquareClose) 
@@ -56,10 +59,14 @@ namespace VSharp
                 return new ConstArray();
             }
 
+            if (Peek2().Type == TokenType.Assignment)
+            {
+                return ParseObject();
+            }
 
             List<Expression> expressions = new List<Expression>(); 
 
-            while(true) 
+            while (true) 
             {
                 expressions.Add(ParseExpression());
                 switch (NextToken().Type) 
@@ -74,20 +81,51 @@ namespace VSharp
             }
         }
 
+        private ConstObject ParseObject() 
+        {
+            Dictionary<string, Expression> entries = new Dictionary<string, Expression>();
+            while (true)
+            {
+                string name = Consume(TokenType.Identifier, "Expected identifier").Value;
+                Consume(TokenType.Assignment, "Expected =");
+                Expression value = ParseExpression();
+                entries[name] = value;
+                switch (NextToken().Type)
+                {
+                    case TokenType.Comma:
+                        continue;
+                    case TokenType.SquareClose:
+                        return new ConstObject { Entries = entries };
+                    default:
+                        throw new Exception("Expected , or ]");
+                }
+            }
+        }
 
-        private FuncStatementNode ParseFuncStatement()
+
+        private ASTNode ParseFuncStatement()
         {
             Consume(TokenType.KeywordFunc, "Expected 'func' keyword");
-            var name = Consume(TokenType.Identifier, "Expected function name");
-            ArgNode args = ParseArgs();
+            Expression identifier = ParseExpression();
             BlockNode block = ParseBlockNode();
-            FuncStatementNode func = new FuncStatementNode
-            {
-                Args = args,
-                Block = block,
-                Name = name.Value
+
+            return identifier switch {
+                Invokation inv => new FuncStatementNode
+                {
+                    Args = inv.Args.Select(it => (it as IdentifierNode)?.Name ?? throw new Exception("Failed")).ToList(),
+                    Block = block,
+                    Name = (inv.Parent as IdentifierNode)?.Name ?? throw new Exception("Cannot defined method")
+                },
+                MethodCall pa => new PropertyAssignment {
+                    Parent = pa.Parent,
+                    Name = pa.Name,
+                    Value = new ConstFunction {
+                        Args = pa.Args.Select(it => (it as IdentifierNode)?.Name ?? throw new Exception("Failed")).ToList(),
+                        Body = block
+                    }
+                },
+                _ => throw new Exception("Cannot assign to provided expression")
             };
-            return func;
         }
 
         private ArgNode ParseArgs()
@@ -110,16 +148,6 @@ namespace VSharp
 
             return arg;
         }
-
-        private ForegroundColorStatementNode ParseForegroundColorStatement()
-        {
-            Consume(TokenType.KeywordForegroundColor, "Expected 'color' keyword.");
-            Consume(TokenType.LeftParen, "Expected '(' after 'color'.");
-            var colorName = ParseExpression();
-            Consume(TokenType.RightParen, "Expected ')' after color name.");
-            return new ForegroundColorStatementNode { ColorName = colorName };
-        }
-
 
 
         private WhileStatementNode ParseWhileStatement()
@@ -204,13 +232,18 @@ namespace VSharp
             return new BlockNode(statements);
         }
 
-        private SetStatementNode ParseSetStatement()
+        private ASTNode ParseSetStatement()
         {
             Consume(TokenType.KeywordSet, "Expected 'set' keyword.");
-            Token identifier = Consume(TokenType.Identifier, "Expected variable name.");
+            Expression assignee = ParseExpression();
             Consume(TokenType.Assignment, "Expected '=' after variable name.");
             Expression expression = ParseExpression();
-            return new SetStatementNode(identifier.Value, expression);
+            return assignee switch
+            {
+                IdentifierNode identifier => new SetStatementNode(identifier.Name, expression),
+                PropertyAccess pa => new PropertyAssignment { Name = pa.Name, Parent = pa.Parent, Value = expression },
+                _ => throw new Exception("Invalid syntax cannot set expr on the left side"),
+            };
         }
 
 
@@ -251,11 +284,10 @@ namespace VSharp
         {
             Expression node = ParsePrimary();
 
-            Token next = Peek();
 
-            while (next.Type == TokenType.LeftParen || next.Type == TokenType.Dot)
+            while (Peek().Type == TokenType.LeftParen || Peek().Type == TokenType.Dot)
             {
-
+                Token next = Peek();
                 if (next.Type == TokenType.Dot)
                 {
                     NextToken();
@@ -354,6 +386,15 @@ namespace VSharp
         {
             if (IsAtEnd()) return new Token(TokenType.EndOfInput, "");
             return _tokens[_position];
+        }
+
+        private Token Peek2()
+        {
+            if (_position + 1 >= _tokens.Count)
+            {
+                return new Token(TokenType.EndOfInput, "");
+            }
+            return _tokens[_position + 1];
         }
 
         private Token NextToken()

@@ -1,6 +1,5 @@
 set a = [1, 2, 3]
 
-println(a)
 func foo(age) {
   set result = if (age >= 18) {
     "nice you are an adult"

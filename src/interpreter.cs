@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Data;
+using System.Reflection;
+using System.Dynamic;
 
 namespace VSharp
 {
@@ -20,6 +22,11 @@ namespace VSharp
         public VariableNotFoundError(string message) : base(message)
         {
         }
+    }
+
+    public class VSharpObject
+    {
+        public required Dictionary<object, object?> Entries {get; set;}
     }
 
     public class Variables
@@ -149,15 +156,31 @@ namespace VSharp
                     break;
                 case ExprStatement exprStatement:
                     return EvaluateExpression(exprStatement.Expression, variables);
+                case PropertyAssignment pas:
+                    ExecutePropertyAssignment(pas, variables);
+                    break;
                 default:
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
         }
 
+        void ExecutePropertyAssignment(PropertyAssignment pas, Variables variables)
+        {
+            object parent = EvaluateExpression(pas.Parent, variables) ?? throw new Exception("Cannot set property on null");
+            object? value = EvaluateExpression(pas.Value, variables);
+            if (parent is VSharpObject vso) {
+                vso.Entries[pas.Name] = value;
+                return;
+            }
+
+            PropertyInfo info = parent.GetType().GetProperty(pas.Name) ?? throw new Exception("Property doesnt exist (on strict object)");
+            info.SetValue(parent, value);
+        }
+
         void ExecuteFuncStatement(FuncStatementNode funcStatement, Variables variables) 
         {
-            Function function =  new Function { Args = funcStatement.Args.Names, Body = funcStatement.Block, CurriedScope= variables};
+            Function function = new Function { Args = funcStatement.Args, Body = funcStatement.Block, CurriedScope= variables};
             variables.SetVar(funcStatement.Name, function);
         }
 
@@ -190,7 +213,7 @@ namespace VSharp
         {
             while (EvaluateExpression(whileStmt.Condition, variables) as bool? ?? false)
             {
-                EvaluateExpression(whileStmt.TrueBlock, variables);
+                EvaluateExpression(whileStmt.TrueBlock, variables.Child());
             }
         }
 
@@ -200,13 +223,13 @@ namespace VSharp
             object? result = null;
             if (cond)
             {
-                result = EvaluateExpression(ifStmt.TrueBlock, variables);
+                result = EvaluateExpression(ifStmt.TrueBlock, variables.Child());
             }
             else
             {
                 if (ifStmt.FalseBlock != null)
                 {
-                    result = EvaluateExpression(ifStmt.FalseBlock, variables);
+                    result = EvaluateExpression(ifStmt.FalseBlock, variables.Child());
                 }
             }
             return result;
@@ -279,15 +302,109 @@ namespace VSharp
                     return d.Value;
                 case ConstString s:
                     return s.Value;
+                case ConstObject o:
+                    return LoadConstObject(o, variables);
+                case MethodCall mc:
+                    return EvaluateMethodCall(mc, variables);
                 case Invokation i:
                     return ExecuteInvokeOperation(i, variables);
                 case BlockNode n:
                     return EvaluateBlockNode(n, variables);
                 case IfNode i:
                     return ExecuteIfStatement(i, variables);
+                case PropertyAccess pa:
+                    return EvaluatePropertyAccess(pa, variables);
+                case ConstFunction func:
+                    return new Function { Args = func.Args, Body = func.Body, CurriedScope = variables };
                 default:
                     throw new Exception($"Unsupported AST node type: {node.GetType().Name}");
             }
+        }
+
+        object? EvaluatePropertyAccess(PropertyAccess pa, Variables variables)
+        {
+            object? parent = EvaluateExpression(pa.Parent, variables);
+            if (parent is VSharpObject o) 
+            {
+                return o.Entries[pa.Name];
+            }
+
+            Type type = parent?.GetType() ?? throw new Exception("Cannot access property on null");
+            PropertyInfo info = type.GetProperty(pa.Name) ?? throw new Exception("Property with given name doesnt exist");
+
+            return info.GetValue(parent);
+        }
+
+        static string SnakeToPascal(string snakeCaseString)
+        {
+            // Split the snake case string by underscores
+            string[] words = snakeCaseString.Split('_');
+            
+            // Convert each word to Pascal case (capitalize first letter)
+            for (int i = 0; i < words.Length; i++)
+            {
+                words[i] = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(words[i]);
+            }
+            
+            // Join the words back together into a single string
+            return string.Join("", words);
+        }
+
+
+        object? EvaluateMethodCall(MethodCall call, Variables variables)
+        {
+            object parent = EvaluateExpression(call.Parent, variables) 
+                ?? throw new Exception("Cannot call method on null");
+
+            // Evaluate arguments
+            object?[] arguments = call.Args.Select(it => EvaluateExpression(it, variables)).ToArray();
+
+            if (parent is VSharpObject obj) 
+            {
+                Invokable function = (obj.Entries[call.Name] as Invokable) ?? throw new Exception("No method found");
+                return function.Invoke(arguments.ToList(), this);
+            }
+
+            // Convert method name from snake_case to PascalCase
+            string methodName = SnakeToPascal(call.Name);
+
+            // Get the argument types
+            Type[] argTypes = arguments.Select(arg => arg?.GetType() ?? typeof(object)).ToArray();
+
+            // Get all methods with the specified name
+            MethodInfo[] methods = parent.GetType().GetMethods()
+                .Where(m => m.Name == methodName)
+                .ToArray();
+
+            // Find the method that matches the argument types
+            MethodInfo? methodInfo = methods.FirstOrDefault(m =>
+            {
+                ParameterInfo[] parameters = m.GetParameters();
+                
+                // Check if the parameter count matches
+                if (parameters.Length != arguments.Length)
+                    return false;
+
+                // Check if each argument can be assigned to the corresponding parameter
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    Type paramType = parameters[i].ParameterType;
+
+                    // Check if the argument type is assignable to the parameter type, handle nulls as object
+                    if (arguments[i] != null && !paramType.IsAssignableFrom(arguments[i]!.GetType()))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            // If no matching method is found, throw an exception
+            if (methodInfo == null)
+                throw new Exception($"No method found with name {methodName} that matches the argument types.");
+
+            // Invoke the method and return the result
+            return methodInfo.Invoke(parent, arguments);
         }
 
 
@@ -318,6 +435,15 @@ namespace VSharp
                 list.Add(EvaluateExpression(expr, variables));
             }
             return list;
+        }
+
+        VSharpObject LoadConstObject(ConstObject obj, Variables variables)
+        {
+            Dictionary<object, object?> objectEntries = obj.Entries.ToDictionary(
+                kvp => (object) kvp.Key, 
+                kvp => EvaluateExpression(kvp.Value, variables)
+            );
+            return new VSharpObject { Entries = objectEntries };
         }
 
         object EvaluateBinaryOperation(BinaryOperationNode binaryOpNode, Variables variables)
