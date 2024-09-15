@@ -64,6 +64,9 @@ namespace VSharp
 
 namespace VSharpLib 
 {
+    using System.Collections;
+    using System.Net.Http.Json;
+    using System.Text.Json;
     using VSharp;
 
     [Module]
@@ -136,6 +139,50 @@ namespace VSharpLib
         public string Content()
         {
             return response.Content.ReadAsStringAsync().Result;
+        }
+
+        public object? Json()
+        {
+            string content = Content();
+            if (content.StartsWith("[")) 
+            {
+                var result = JsonSerializer.Deserialize<List<object>>(content);
+                return JsonWrapper.WrapObject(result);
+            } else {
+                var result = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+                return JsonWrapper.WrapObject(result);
+            }
+        }
+    }
+
+
+   public class JsonWrapper
+    {
+        public static object? WrapObject(object? obj)
+        {
+            // Handle null values explicitly
+            if (obj == null)
+            {
+                return null;
+            }
+
+            // Use pattern matching to handle different types
+            return obj switch
+            {
+                // If obj is a Dictionary<string, object?>, wrap it in VSharpObject
+                Dictionary<string, object?> dict => new VSharpObject { Entries =
+                    dict.ToDictionary(
+                        kvp => (object)kvp.Key, // Use LINQ to convert dictionary
+                        kvp => WrapObject(kvp.Value) // Recursively wrap each value
+                    )
+                },
+                
+                // If obj is a list, apply the wrapping recursively to each item
+                IList list => list.Cast<object?>().Select(WrapObject).ToList(),
+                
+                // If it's not a dictionary or list, just return it as-is
+                _ => obj
+            };
         }
     }
 

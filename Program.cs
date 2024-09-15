@@ -13,4 +13,4 @@ void RunCode(String path) {
 }
 
 
-RunCode("./examples/networking.vshrp");
+RunCode("./examples/arrays.vshrp");

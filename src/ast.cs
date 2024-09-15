@@ -91,6 +91,13 @@ namespace VSharp {
         public required Expression Value;
     }
 
+    public class IndexAssignment : ASTNode 
+    {
+        public required Expression Parent;
+        public required Expression Index;
+        public required Expression Value;
+    }
+
     public class PrintStatementNode : ASTNode
     {
         public Expression Expression { get; }

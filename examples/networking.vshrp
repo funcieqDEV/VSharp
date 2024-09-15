@@ -1,2 +1,8 @@
-set response = http.get("https://www.google.at/")
-io.println(response.content())
+set response = http.get("https://jsonplaceholder.typicode.com/posts")
+
+set body = response.json()
+
+
+for (post in body) {
+    io.println(post)
+}

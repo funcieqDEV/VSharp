@@ -253,6 +253,7 @@ namespace VSharp
             {
                 IdentifierNode identifier => new SetStatementNode(identifier.Name, expression),
                 PropertyAccess pa => new PropertyAssignment { Name = pa.Name, Parent = pa.Parent, Value = expression },
+                Indexing indexing => new IndexAssignment { Index = indexing.Index, Parent = indexing.Parent, Value = expression },
                 _ => throw new Exception("Invalid syntax cannot set expr on the left side"),
             };
         }

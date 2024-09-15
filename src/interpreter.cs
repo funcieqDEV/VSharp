@@ -8,6 +8,7 @@ using System.Data;
 using System.Reflection;
 using System.Dynamic;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace VSharp
 {
@@ -147,12 +148,6 @@ namespace VSharp
                 case WhileStatementNode whileStmt:
                     ExecuteWhileStatement(whileStmt, variables);
                     break;
-                case ConvertToIntStatementNode ctiStmt:
-                    ExecuteConvertToIntStatement(ctiStmt, variables);
-                    break;
-                case ForegroundColorStatementNode colorStmt:
-                    ExecuteForegroundColorStatement(colorStmt, variables);
-                    break;
                 case FuncStatementNode funcStmt:
                     ExecuteFuncStatement(funcStmt, variables);
                     break;
@@ -161,6 +156,9 @@ namespace VSharp
                 case PropertyAssignment pas:
                     ExecutePropertyAssignment(pas, variables);
                     break;
+                case IndexAssignment indexAssignment:
+                    ExecuteIndexAssignment(indexAssignment, variables);
+                    break;
                 case ForLoop loop:
                     ExecuteForLoop(loop, variables);
                     break;
@@ -168,6 +166,32 @@ namespace VSharp
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
+        }
+
+        void ExecuteIndexAssignment(IndexAssignment indexAssignment, Variables variables)
+        {
+            object parent = EvaluateExpression(indexAssignment.Parent, variables) ?? throw new Exception("Cannot set property on null");
+            object index = EvaluateExpression(indexAssignment.Index, variables) ?? throw new Exception("Index cannot be null");
+            object? value = EvaluateExpression(indexAssignment.Value, variables);
+
+            if (parent is VSharpObject vso) 
+            {
+                vso.Entries[index] = value;
+                return;
+            } 
+            if (parent is List<object?> list && index is int i)
+            {
+                list[i] = value;
+                return;
+            }
+            if (index is string name)
+            {
+                PropertyInfo info = parent.GetType().GetProperty(SnakeToPascal(name)) ?? throw new Exception("Property doesnt exist (on strict object)");
+                info.SetValue(parent, value);
+                return;
+            }
+
+           throw new Exception("Indexing operation failed");
         }
 
         void ExecuteForLoop(ForLoop loop, Variables variables)
@@ -254,55 +278,6 @@ namespace VSharp
                 }
             }
             return result;
-        }
-
-        void ExecuteConvertToIntStatement(ConvertToIntStatementNode ctiStmt, Variables variables)
-        {
-
-            var value = EvaluateExpression(ctiStmt.Expr, variables);
-            var name = ctiStmt.VarName;
-            variables.SetVar(name, Convert.ToInt32(value));
-        }
-
-        void ExecuteForegroundColorStatement(ForegroundColorStatementNode colorStmt, Variables variables)
-        {
-            string colorName = EvaluateExpression(colorStmt.ColorName, variables) as string ?? "";
-            colorName = colorName.ToLower();
-            switch (colorName)
-            {
-                case "black":
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    break;
-                case "green":
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    break;
-                case "yellow":
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-                case "blue":
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    break;
-                case "red":
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-                case "gray":
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    break;
-                case "white":
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
-                case "cyan":
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    break;
-                case "magenta":
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    break;
-                case "darkgray":
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    break;
-                default:
-                    throw new Exception($"Unsupported color: {colorName}");
-            }
         }
 
     

@@ -2,6 +2,11 @@ set array = [1, 2, 3]
 
 io.println(array.count)
 
+for (item in array) {
+    io.println(item)
+}
+
+set array[0] = "Hello World"
 
 for (item in array) {
     io.println(item)
