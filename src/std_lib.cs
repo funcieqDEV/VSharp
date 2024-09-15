@@ -38,7 +38,7 @@ namespace VSharp
 
             var types = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(it => it.Namespace == "VSharpLib")
+                .Where(it => it.Namespace == "VSharpLib" && Attribute.IsDefined(it, typeof(Module)))
                 .Select(it => (it.Name, Activator.CreateInstance(it)))
                 .ToArray();
 
@@ -107,6 +107,7 @@ namespace VSharpLib
 
     }
 
+    [Module]
     class Object 
     {
         public VSharpObject New()
