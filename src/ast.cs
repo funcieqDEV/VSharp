@@ -42,17 +42,6 @@ namespace VSharp {
         }
     }
 
-    
-
-    public class ForegroundColorStatementNode : ASTNode
-    {
-        public Expression ColorName { get; set; }
-
-        public ForegroundColorStatementNode()
-        {
-        }
-    }
-
 
     public class WhileStatementNode : ASTNode
     {
@@ -98,50 +87,9 @@ namespace VSharp {
         public required Expression Value;
     }
 
-    public class PrintStatementNode : ASTNode
-    {
-        public Expression Expression { get; }
-
-        public PrintStatementNode(Expression expression)
-        {
-            Expression = expression;
-        }
-    }
-
-    public class ConvertToIntStatementNode : ASTNode
-    {
-        public Expression Expr { get; set; }
-        public string VarName { get; set; }
-
-        public ConvertToIntStatementNode()
-        {
-        }
-    }
-
-    public class PrintlnStatementNode : ASTNode
-    {
-        public Expression Expression { get; }
-
-        public PrintlnStatementNode(Expression expression)
-        {
-            Expression = expression;
-        }
-    }
-
-    public class InputStatementNode : ASTNode
-    {
-        public string VarName { get; }
-
-        public InputStatementNode(string varName)
-        {
-            VarName = varName;
-        }
-    }
-
- 
     public abstract class Expression {}
 
-   public class ConstString : Expression
+    public class ConstString : Expression
     {
         public required string Value { get; set; }
     }

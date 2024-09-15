@@ -134,17 +134,6 @@ namespace VSharp
                 case SetStatementNode setStmt:
                     ExecuteSetStatement(setStmt, variables);
                     break;
-
-                case PrintStatementNode printStmt:
-                    ExecutePrintStatement(printStmt, variables);
-                    break;
-                case InputStatementNode inputStmt:
-                    ExecuteInputStatement(inputStmt, variables);
-                    break;
-    
-                case PrintlnStatementNode printlnStmt:
-                    ExecutePrintlnStatement(printlnStmt, variables);
-                    break;
                 case WhileStatementNode whileStmt:
                     ExecuteWhileStatement(whileStmt, variables);
                     break;
@@ -234,24 +223,6 @@ namespace VSharp
         {
             object? value = EvaluateExpression(setStmt.Expression, variables);
             variables.SetVar(setStmt.VariableName, value);
-        }
-
-        void ExecutePrintStatement(PrintStatementNode printStmt, Variables variables)
-        {
-            object? value = EvaluateExpression(printStmt.Expression, variables);
-            Console.Write(value);
-        }
-
-        void ExecuteInputStatement(InputStatementNode inputStmt, Variables variables)
-        {
-            string varName = inputStmt.VarName;
-            variables.SetVar(inputStmt.VarName, Console.ReadLine());
-        }
-
-        void ExecutePrintlnStatement(PrintlnStatementNode printlnStmt, Variables variables)
-        {
-            object? value = EvaluateExpression(printlnStmt.Expression, variables);
-            Console.WriteLine(value);
         }
 
         void ExecuteWhileStatement(WhileStatementNode whileStmt, Variables variables)
