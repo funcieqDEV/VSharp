@@ -1,0 +1,5 @@
+set array = [1, 2, 3]
+
+io.println(array.count)
+
+io.println(array[2])

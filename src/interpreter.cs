@@ -29,6 +29,7 @@ namespace VSharp
         public required Dictionary<object, object?> Entries {get; set;}
     }
 
+
     public class Variables
     {
         private Variables? _parent;
@@ -316,9 +317,35 @@ namespace VSharp
                     return EvaluatePropertyAccess(pa, variables);
                 case ConstFunction func:
                     return new Function { Args = func.Args, Body = func.Body, CurriedScope = variables };
+                case Indexing indexing:
+                    return EvaluateIndexing(indexing, variables);
                 default:
                     throw new Exception($"Unsupported AST node type: {node.GetType().Name}");
             }
+        }
+
+        object? EvaluateIndexing(Indexing indexing, Variables variables)
+        {
+            object parent = EvaluateExpression(indexing.Parent, variables) ?? throw new Exception("Cannot index into null");
+            object index = EvaluateExpression(indexing.Index, variables) ?? throw new Exception("Cannot have null as the index");
+
+            if (parent is List<object?> list && index is int i)
+            {
+                return list[i];
+            }
+
+            if (parent is VSharpObject obj)
+            {
+                return obj.Entries[index];
+            }
+
+            if (index is string s)
+            {
+                PropertyInfo info = parent.GetType().GetProperty(SnakeToPascal(s)) ?? throw new Exception("Property with given name doesnt exist");
+                return info.GetValue(parent);
+            }
+
+            throw new Exception($"Cannot index {parent}[{index}]");
         }
 
         object? EvaluatePropertyAccess(PropertyAccess pa, Variables variables)
@@ -330,7 +357,7 @@ namespace VSharp
             }
 
             Type type = parent?.GetType() ?? throw new Exception("Cannot access property on null");
-            PropertyInfo info = type.GetProperty(pa.Name) ?? throw new Exception("Property with given name doesnt exist");
+            PropertyInfo info = type.GetProperty(SnakeToPascal(pa.Name)) ?? throw new Exception($"Property with given name {pa.Name} doesnt exist");
 
             return info.GetValue(parent);
         }
@@ -401,7 +428,7 @@ namespace VSharp
 
             // If no matching method is found, throw an exception
             if (methodInfo == null)
-                throw new Exception($"No method found with name {methodName} that matches the argument types.");
+                throw new Exception($"No method found with name {methodName} that matches the argument types on {parent}.");
 
             // Invoke the method and return the result
             return methodInfo.Invoke(parent, arguments);

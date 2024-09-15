@@ -1,0 +1,54 @@
+// Define an object with properties
+set my_object = [
+    name = "Tom",
+    age = 19
+]
+
+io.println(my_object.name)  // Access and print 'name'
+io.println(my_object.age)   // Access and print 'age'
+
+// Modify the 'age' property of the object
+set my_object.age = 20
+
+io.println(my_object.age)   // Print updated age
+
+// Define a method (function) inside the object
+set my_object.hello_world = func() {
+    io.println("Hello World")
+}
+
+// Alternatively, use syntax that resembles a method declaration
+func my_object.hello_world() {
+    io.println("Hello World")
+}
+
+// Factory function to create a user object
+func User(name, age) {
+    set user = object.new()  // Create an empty object
+
+    // Define a getter for 'age'
+    func user.age() {
+        age
+    }
+
+    // Define a setter for 'age'
+    func user.set_age(new_age) {
+        set age = new_age
+    }
+
+    // Define a getter for 'name'
+    func user.name() {
+        name
+    }
+
+    // Return the user object
+    user
+}
+
+// Create a user object using the factory function
+set user = User("Tim", 18)
+
+// Use the methods to get and set properties
+io.println(user.age())  // Output: 18
+user.set_age(3456)      // Modify age
+io.println(user.age())  // Output: 3456

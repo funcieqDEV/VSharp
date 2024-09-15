@@ -245,6 +245,12 @@ namespace VSharp {
         }
     }
 
+    public class Indexing : Expression
+    {
+        public required Expression Parent;
+        public required Expression Index;
+    }
+
     public class BlockNode : Expression
     {
         public List<ASTNode> Statements { get; }

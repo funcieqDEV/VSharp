@@ -285,7 +285,7 @@ namespace VSharp
             Expression node = ParsePrimary();
 
 
-            while (Peek().Type == TokenType.LeftParen || Peek().Type == TokenType.Dot)
+            while (Peek().Type == TokenType.LeftParen || Peek().Type == TokenType.Dot || Peek().Type == TokenType.SquareOpen)
             {
                 Token next = Peek();
                 if (next.Type == TokenType.Dot)
@@ -305,6 +305,14 @@ namespace VSharp
                     {
                         node = new Invokation { Args = args, Parent = node };
                     }
+                }
+
+                if (next.Type == TokenType.SquareOpen)
+                {
+                    NextToken();
+                    Expression index = ParseExpression();
+                    Consume(TokenType.SquareClose, "Expected `]`");
+                    node = new Indexing { Parent = node, Index = index };
                 }
                
             }

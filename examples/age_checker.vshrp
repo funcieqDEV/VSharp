@@ -1,0 +1,19 @@
+
+func check_age(age) {
+    set result = if (age >= 18) {
+        "n aDuLt"
+    } else {
+        " cHIld"
+    }
+    "You are a" + result.to_lower()
+}
+
+func main() {
+    set age = int(io.input("Enter an age >"))
+
+    set response = check_age(age)
+    io.println(response)   
+}
+
+main()
+
