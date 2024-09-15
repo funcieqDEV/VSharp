@@ -153,7 +153,6 @@ namespace VSharp {
         }
     }
 
-
     public class ConstArray : Expression 
     {
         public List<Expression> Expressions;

@@ -362,6 +362,8 @@ namespace VSharp
                     return new IdentifierNode(current.Value);
                 case TokenType.KeywordIf:
                     return ParseIfStatement();
+                case TokenType.KeywordFunc:
+                    return ParseAnonymousFunc();
                 case TokenType.LeftParen:
                     NextToken();
                     Expression expr = ParseExpression();
@@ -370,6 +372,15 @@ namespace VSharp
                 default:
                     throw new Exception($"Unexpected token: {current}");
             }
+        }
+
+        private ConstFunction ParseAnonymousFunc() 
+        {
+            Consume(TokenType.KeywordFunc, "Expected func keyword");
+            ArgNode args = ParseArgs();
+            Expression body = ParseBlockNode();
+
+            return new ConstFunction { Args = args.Names, Body = body };
         }
 
         private Token Consume(TokenType type, string errorMessage)
