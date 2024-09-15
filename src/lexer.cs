@@ -12,8 +12,9 @@ namespace VSharp
         KeywordIf,
         KeywordElse,
         KeywordWhile,
-        KeywordForegroundColor,
+        KeywordFor,
         KeywordFunc,
+        KeywordIn,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -69,7 +70,9 @@ namespace VSharp
             { "or", TokenType.LogicalOr },
             { "and", TokenType.LogicalAnd },
             { "while", TokenType.KeywordWhile},
-            { "func", TokenType.KeywordFunc}
+            { "func", TokenType.KeywordFunc},
+            { "for", TokenType.KeywordFor},
+            { "in", TokenType.KeywordIn }
         };
 
         public Lexer(string input)
@@ -149,12 +152,12 @@ namespace VSharp
                 {
                     if (LookAhead() == '/')
                     {
-                        
+
                         while (_position < _input.Length && _input[_position] != '\n')
                         {
                             _position++;
                         }
-                        continue; 
+                        continue;
                     }
                 }
                 else if (currentChar == '>')
@@ -194,15 +197,18 @@ namespace VSharp
                 {
                     tokens.Add(new Token(TokenType.RightBrace, "}"));
                     _position++;
-                } else if (currentChar == '[') 
+                }
+                else if (currentChar == '[')
                 {
                     tokens.Add(new Token(TokenType.SquareOpen, "["));
                     _position++;
-                } else if (currentChar == '.') 
+                }
+                else if (currentChar == '.')
                 {
                     tokens.Add(new Token(TokenType.Dot, "."));
                     _position++;
-                } else if (currentChar == ']') 
+                }
+                else if (currentChar == ']')
                 {
                     tokens.Add(new Token(TokenType.SquareClose, "]"));
                     _position++;
@@ -223,7 +229,7 @@ namespace VSharp
             {
                 return _input[_position + 1];
             }
-            return '\0'; 
+            return '\0';
         }
 
         private bool IsOperator(char c)
@@ -272,7 +278,7 @@ namespace VSharp
 
         private Token ReadString()
         {
-            int start = ++_position; 
+            int start = ++_position;
             while (_position < _input.Length && _input[_position] != '"')
             {
                 _position++;
@@ -284,7 +290,7 @@ namespace VSharp
             }
 
             string value = _input.Substring(start, _position - start);
-            _position++; 
+            _position++;
             return new Token(TokenType.StringLiteral, value);
         }
     }

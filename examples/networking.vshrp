@@ -1,0 +1,2 @@
+set response = http.get("https://www.google.at/")
+io.println(response.content())

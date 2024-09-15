@@ -8,18 +8,6 @@ namespace VSharp
         public static Variables StdLib()
         {
             Variables vars = new Variables();
-            vars.SetVar("println", NativeFunc.FromClosure((args) => {
-                foreach(var arg in args) {
-                    Console.Write(arg);
-                }
-                Console.Write("\n");
-                return null;
-            }));
-
-            vars.SetVar("input", NativeFunc.FromClosure((args) =>
-            {
-                return Console.ReadLine();
-            }));
 
             vars.SetVar("int", NativeFunc.FromClosure((args) =>
             {
@@ -71,7 +59,6 @@ namespace VSharp
     [AttributeUsage(AttributeTargets.Class)]
     public class Module : Attribute
     {
-
     }
 }
 
@@ -116,5 +103,40 @@ namespace VSharpLib
         }
     }
 
+
+    [Module]
+    class Http 
+    {
+        public HttpResponse Get(string url) 
+        {
+             // Initialize HttpClient
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = client.GetAsync(url).Result;
+                return new HttpResponse(response);
+            }
+        }
+    }
+
+
+    class HttpResponse 
+    {
+        HttpResponseMessage response;
+
+        public HttpResponse(HttpResponseMessage response)
+        {
+            this.response = response;
+        }
+
+        public int StatusCode() 
+        {
+            return (int)response.StatusCode;
+        }
+
+        public string Content()
+        {
+            return response.Content.ReadAsStringAsync().Result;
+        }
+    }
 
 }

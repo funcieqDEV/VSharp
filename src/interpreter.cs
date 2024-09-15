@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Reflection;
 using System.Dynamic;
+using System.Runtime.InteropServices;
 
 namespace VSharp
 {
@@ -160,10 +161,29 @@ namespace VSharp
                 case PropertyAssignment pas:
                     ExecutePropertyAssignment(pas, variables);
                     break;
+                case ForLoop loop:
+                    ExecuteForLoop(loop, variables);
+                    break;
                 default:
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
+        }
+
+        void ExecuteForLoop(ForLoop loop, Variables variables)
+        {
+            object parent = EvaluateExpression(loop.Parent, variables) ?? throw new Exception("Cannot iterate over null");
+            if (parent is IEnumerable<object?> iter)
+            {
+                foreach (var item in iter)
+                {
+                    Variables child = variables.Child();
+                    child.SetVar(loop.ItemName, item);
+                    EvaluateExpression(loop.Body, child);
+                }
+            } else {
+                throw new Exception($"Cannot iterate over {parent}");
+            }
         }
 
         void ExecutePropertyAssignment(PropertyAssignment pas, Variables variables)

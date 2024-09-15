@@ -65,6 +65,13 @@ namespace VSharp {
         }
     }
 
+    public class ForLoop : ASTNode 
+    {
+        public required Expression Body;
+        public required Expression Parent;
+        public required string ItemName;
+    }
+
     public class SetStatementNode : ASTNode
     {
         public string VariableName { get; }

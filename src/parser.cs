@@ -40,7 +40,8 @@ namespace VSharp
                     return ParseWhileStatement();
                 case TokenType.KeywordFunc:
                     return ParseFuncStatement();
-                
+                case TokenType.KeywordFor:
+                    return ParseForLoop();  
                 default:
                     //allow for expressions to be statements in this case:
                     //if statements and function calls are expresions
@@ -49,7 +50,17 @@ namespace VSharp
         }
 
 
-
+        private ForLoop ParseForLoop()
+        {
+            Consume(TokenType.KeywordFor, "Expected keyword for");
+            Consume(TokenType.LeftParen, "Expected ( after for");
+            string name = Consume(TokenType.Identifier, "Expected itemname in for loop").Value;
+            Consume(TokenType.KeywordIn, "Expected `in`");
+            Expression parent = ParseExpression();
+            Consume(TokenType.RightParen, "Expected ) after for");
+            Expression body = ParseBlockNode();
+            return new ForLoop { Body = body, ItemName = name, Parent = parent };
+        }
         private Expression ParseArray() 
         {
             Consume(TokenType.SquareOpen, "");
