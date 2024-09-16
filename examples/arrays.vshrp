@@ -1,0 +1,7 @@
+set array = [2,3,4,6,1]
+
+array[0] = 3
+
+for(item in array){
+  IO.Println(item)
+}
