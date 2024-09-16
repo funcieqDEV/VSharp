@@ -31,7 +31,8 @@ at this point you can already use V#
 - the file editor can be a regular notepad
 - administrator permissions
 - Console
-
+### Special thanks
+[Thanks]("SPECIAL_THANKS.MD")
 ### Compilation
 - **Download source**
 after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
