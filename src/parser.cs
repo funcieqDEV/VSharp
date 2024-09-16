@@ -1,203 +1,9 @@
-using System;
-using System.Collections.Generic;
-using VSharp;
+
+using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace VSharp
 {
-    public abstract class ASTNode { }
-
-    public class ProgramNode : ASTNode
-    {
-        public List<ASTNode> Statements { get; }
-
-        public ProgramNode()
-        {
-            Statements = new List<ASTNode>();
-        }
-    }
-
-    public class ArgNode : ASTNode
-    {
-        public List<string> Names { get; set; }
-
-        public ArgNode()
-        {
-            Names = new List<string>();
-        }
-    }
-
-    public class FuncCallNode : ASTNode
-    {
-        public List<ASTNode> Args { get; set; }
-        public string FuncName { get; set; }
-
-        public FuncCallNode()
-        {
-            Args = new List<ASTNode>();
-        }
-    }
-
-    public class FuncStatementNode : ASTNode
-    {
-        public string Name { get; set; }
-        public ArgNode Args { get; set; }
-        public BlockNode Block { get; set; }
-        public Dictionary<string, object> Vars { get; set; }
-
-        public FuncStatementNode()
-        {
-            Args = new ArgNode();
-            Block = new BlockNode();
-        }
-    }
-
-    public class BlockNode : ASTNode
-    {
-        public List<ASTNode> Statements { get; }
-
-        public BlockNode()
-        {
-            Statements = new List<ASTNode>();
-        }
-
-        public BlockNode(List<ASTNode> statements)
-        {
-            Statements = statements;
-        }
-    }
-
-    public class ForegroundColorStatementNode : ASTNode
-    {
-        public ASTNode ColorName { get; set; }
-
-        public ForegroundColorStatementNode()
-        {
-        }
-    }
-
-    public class IfNode : ASTNode
-    {
-        public ASTNode Condition { get; set; }
-        public BlockNode TrueBlock { get; set; }
-        public BlockNode FalseBlock { get; set; }
-
-        public IfNode()
-        {
-            TrueBlock = new BlockNode();
-            FalseBlock = new BlockNode();
-        }
-    }
-
-    public class WhileStatementNode : ASTNode
-    {
-        public ASTNode Condition { get; set; }
-        public BlockNode TrueBlock { get; set; }
-
-        public WhileStatementNode()
-        {
-            TrueBlock = new BlockNode();
-        }
-    }
-
-    public class SetStatementNode : ASTNode
-    {
-        public string VariableName { get; }
-        public ASTNode Expression { get; }
-
-        public SetStatementNode(string variableName, ASTNode expression)
-        {
-            VariableName = variableName;
-            Expression = expression;
-        }
-    }
-
-    public class PrintStatementNode : ASTNode
-    {
-        public ASTNode Expression { get; }
-
-        public PrintStatementNode(ASTNode expression)
-        {
-            Expression = expression;
-        }
-    }
-
-    public class ConvertToIntStatementNode : ASTNode
-    {
-        public ASTNode Expr { get; set; }
-        public string VarName { get; set; }
-
-        public ConvertToIntStatementNode()
-        {
-        }
-    }
-
-    public class PrintlnStatementNode : ASTNode
-    {
-        public ASTNode Expression { get; }
-
-        public PrintlnStatementNode(ASTNode expression)
-        {
-            Expression = expression;
-        }
-    }
-
-    public class InputStatementNode : ASTNode
-    {
-        public string VarName { get; }
-
-        public InputStatementNode(string varName)
-        {
-            VarName = varName;
-        }
-    }
-
-    public class LiteralNode : ASTNode
-    {
-        public string Value { get; }
-
-        public LiteralNode(string value)
-        {
-            Value = value;
-        }
-    }
-
-    public class IdentifierNode : ASTNode
-    {
-        public string Name { get; }
-
-        public IdentifierNode(string name)
-        {
-            Name = name;
-        }
-    }
-
-    public class BinaryOperationNode : ASTNode
-    {
-        public ASTNode Left { get; }
-        public string Operator { get; }
-        public ASTNode Right { get; }
-
-        public BinaryOperationNode(ASTNode left, string operatorSymbol, ASTNode right)
-        {
-            Left = left;
-            Operator = operatorSymbol;
-            Right = right;
-        }
-    }
-
-    public class LogicalNode : ASTNode
-    {
-        public ASTNode Left { get; set; }
-        public Token Operator { get; set; }
-        public ASTNode Right { get; set; }
-
-        public LogicalNode(ASTNode left, Token operatorSymbol, ASTNode right)
-        {
-            Left = left;
-            Operator = operatorSymbol;
-            Right = right;
-        }
-    }
 
     public class Parser
     {
@@ -214,7 +20,7 @@ namespace VSharp
         {
             ProgramNode program = new ProgramNode();
 
-            while (!IsAtEnd())
+            while (Peek().Type != TokenType.EndOfInput)
             {
                 program.Statements.Add(ParseStatement());
             }
@@ -230,64 +36,110 @@ namespace VSharp
             {
                 case TokenType.KeywordSet:
                     return ParseSetStatement();
-                case TokenType.KeywordPrint:
-                    return ParsePrintStatement();
-                case TokenType.KeywordInput:
-                    return ParseInputStatement();
-                case TokenType.KeywordIf:
-                    return ParseIfStatement();
-                case TokenType.KeywordPrintln:
-                    return ParsePrintlnStatement();
                 case TokenType.KeywordWhile:
                     return ParseWhileStatement();
-                case TokenType.KeywordConvertToInt:
-                    return ParseConvertToIntStatement();
-                case TokenType.KeywordForegroundColor:
-                    return ParseForegroundColorStatement();
                 case TokenType.KeywordFunc:
                     return ParseFuncStatement();
-                case TokenType.Identifier:
-                    return ParseFuncCall();
+                case TokenType.KeywordFor:
+                    return ParseForLoop();
                 default:
-                    _position++;
-                    return null;
+                    //allow for expressions to be statements in this case:
+                    //if statements and function calls are expresions
+                    return new ExprStatement(ParseExpression());
             }
         }
 
-        private FuncCallNode ParseFuncCall()
+
+        private ForLoop ParseForLoop()
         {
-            FuncCallNode funcCall = new FuncCallNode();
-            var name = Consume(TokenType.Identifier, "Expected function name.");
-            Consume(TokenType.LeftParen, "Expected '(' after function name.");
-
-            while (Peek().Type != TokenType.RightParen)
+            Consume(TokenType.KeywordFor, "Expected keyword for");
+            Consume(TokenType.LeftParen, "Expected ( after for");
+            string name = Consume(TokenType.Identifier, "Expected itemname in for loop").Value;
+            Consume(TokenType.KeywordIn, "Expected `in`");
+            Expression parent = ParseExpression();
+            Consume(TokenType.RightParen, "Expected ) after for");
+            Expression body = ParseBlockNode();
+            return new ForLoop { Body = body, ItemName = name, Parent = parent };
+        }
+        private Expression ParseArray()
+        {
+            Consume(TokenType.SquareOpen, "");
+            if (Peek().Type == TokenType.SquareClose)
             {
-                funcCall.Args.Add(ParseExpression());
+                Consume(TokenType.SquareClose, "Expeced `]`");
+                return new ConstArray();
+            }
 
-                if (Peek().Type == TokenType.Comma)
+            if (Peek2().Type == TokenType.Assignment)
+            {
+                return ParseObject();
+            }
+
+            List<Expression> expressions = new List<Expression>();
+
+            while (true)
+            {
+                expressions.Add(ParseExpression());
+                switch (NextToken().Type)
                 {
-                    Consume(TokenType.Comma, "Expected ',' after argument.");
+                    case TokenType.Comma:
+                        continue;
+                    case TokenType.SquareClose:
+                        return new ConstArray(expressions);
+                    default:
+                        throw new Exception("Expected `,` or `]`");
                 }
             }
-
-            Consume(TokenType.RightParen, "Expected ')' after arguments.");
-            funcCall.FuncName = name.Value;
-            return funcCall;
         }
 
-        private FuncStatementNode ParseFuncStatement()
+        private ConstObject ParseObject()
+        {
+            Dictionary<string, Expression> entries = new Dictionary<string, Expression>();
+            while (true)
+            {
+                string name = Consume(TokenType.Identifier, "Expected identifier").Value;
+                Consume(TokenType.Assignment, "Expected =");
+                Expression value = ParseExpression();
+                entries[name] = value;
+                switch (NextToken().Type)
+                {
+                    case TokenType.Comma:
+                        continue;
+                    case TokenType.SquareClose:
+                        return new ConstObject { Entries = entries };
+                    default:
+                        throw new Exception("Expected , or ]");
+                }
+            }
+        }
+
+
+        private ASTNode ParseFuncStatement()
         {
             Consume(TokenType.KeywordFunc, "Expected 'func' keyword");
-            var name = Consume(TokenType.Identifier, "Expected function name");
-            ArgNode args = ParseArgs();
+            Expression identifier = ParseExpression();
             BlockNode block = ParseBlockNode();
-            FuncStatementNode func = new FuncStatementNode
+
+            return identifier switch
             {
-                Args = args,
-                Block = block,
-                Name = name.Value
+                Invokation inv => new FuncStatementNode
+                {
+                    Args = inv.Args.Select(it => (it as IdentifierNode)?.Name ?? throw new Exception("Failed")).ToList(),
+                    Block = block,
+                    Name = (inv.Parent as IdentifierNode)?.Name ?? throw new Exception("Cannot defined method")
+                },
+                MethodCall pa => new PropertyAssignment
+                {
+                    Parent = pa.Parent,
+                    Name = pa.Name,
+                    Value = new ConstFunction
+                    {
+                        Args = pa.Args.Select(it => (it as IdentifierNode)?.Name ?? throw new Exception("Failed")).ToList(),
+                        Body = block
+                    }
+                },
+                _ => throw new Exception("Cannot assign to provided expression")
             };
-            return func;
         }
 
         private ArgNode ParseArgs()
@@ -311,29 +163,6 @@ namespace VSharp
             return arg;
         }
 
-        private ForegroundColorStatementNode ParseForegroundColorStatement()
-        {
-            Consume(TokenType.KeywordForegroundColor, "Expected 'color' keyword.");
-            Consume(TokenType.LeftParen, "Expected '(' after 'color'.");
-            var colorName = ParseExpression();
-            Consume(TokenType.RightParen, "Expected ')' after color name.");
-            return new ForegroundColorStatementNode { ColorName = colorName };
-        }
-
-        private ConvertToIntStatementNode ParseConvertToIntStatement()
-        {
-            Consume(TokenType.KeywordConvertToInt, "Expected 'ConvertToInt' keyword");
-            Consume(TokenType.LeftParen, "Expected '(' after 'ConvertToInt'");
-            var expr = ParseExpression();
-            Consume(TokenType.Comma, "Expected ',' after expression");
-            var name = Consume(TokenType.Identifier, "Expected variable name");
-            Consume(TokenType.RightParen, "Expected ')' after variable name");
-            return new ConvertToIntStatementNode
-            {
-                Expr = expr,
-                VarName = name.Value
-            };
-        }
 
         private WhileStatementNode ParseWhileStatement()
         {
@@ -370,30 +199,31 @@ namespace VSharp
             return ifNode;
         }
 
-        private ASTNode ParseLogicalExpression()
+
+        private Expression ParseLogicalExpression()
         {
-            ASTNode node = ParseComparison();
+            Expression node = ParseComparison();
 
             while (Peek().Type == TokenType.LogicalOr || Peek().Type == TokenType.LogicalAnd)
             {
                 Token logicalOp = NextToken();
-                ASTNode right = ParseComparison();
+                Expression right = ParseComparison();
                 node = new LogicalNode(node, logicalOp, right);
             }
 
             return node;
         }
 
-        private ASTNode ParseComparison()
+        private Expression ParseComparison()
         {
-            ASTNode node = ParseExpression();
+            Expression node = ParseExpression();
 
             if (Peek().Type == TokenType.Greater || Peek().Type == TokenType.Less ||
                 Peek().Type == TokenType.Equal || Peek().Type == TokenType.NotEqual ||
                 Peek().Type == TokenType.GreaterEqual || Peek().Type == TokenType.LessEqual)
             {
                 Token comparisonOp = NextToken();
-                ASTNode right = ParseExpression();
+                Expression right = ParseExpression();
                 node = new BinaryOperationNode(node, comparisonOp.Value, right);
             }
 
@@ -416,92 +246,165 @@ namespace VSharp
             return new BlockNode(statements);
         }
 
-        private InputStatementNode ParseInputStatement()
-        {
-            Consume(TokenType.KeywordInput, "Expected 'input' keyword");
-            Consume(TokenType.LeftParen, "Expected '(' after 'input'");
-            Token id = Consume(TokenType.Identifier, "Expected variable name");
-            Consume(TokenType.RightParen, "Expected ')' after variable name");
-            return new InputStatementNode(id.Value);
-        }
-
-        private SetStatementNode ParseSetStatement()
+        private ASTNode ParseSetStatement()
         {
             Consume(TokenType.KeywordSet, "Expected 'set' keyword.");
-            Token identifier = Consume(TokenType.Identifier, "Expected variable name.");
+            Expression assignee = ParseExpression();
             Consume(TokenType.Assignment, "Expected '=' after variable name.");
-            ASTNode expression = ParseExpression();
-            return new SetStatementNode(identifier.Value, expression);
+            Expression expression = ParseExpression();
+            return assignee switch
+            {
+                IdentifierNode identifier => new SetStatementNode(identifier.Name, expression),
+                PropertyAccess pa => new PropertyAssignment { Name = pa.Name, Parent = pa.Parent, Value = expression },
+                Indexing indexing => new IndexAssignment { Index = indexing.Index, Parent = indexing.Parent, Value = expression },
+                _ => throw new Exception("Invalid syntax cannot set expr on the left side"),
+            };
         }
 
-        private PrintStatementNode ParsePrintStatement()
-        {
-            Consume(TokenType.KeywordPrint, "Expected 'print' keyword.");
-            Consume(TokenType.LeftParen, "Expected '(' after 'print'.");
-            ASTNode expression = ParseExpression();
-            Consume(TokenType.RightParen, "Expected ')' after expression.");
-            return new PrintStatementNode(expression);
-        }
 
-        private PrintlnStatementNode ParsePrintlnStatement()
-        {
-            Consume(TokenType.KeywordPrintln, "Expected 'println' keyword.");
-            Consume(TokenType.LeftParen, "Expected '(' after 'println' keyword");
-            ASTNode expr = ParseExpression();
-            Consume(TokenType.RightParen, "Expected ')' after expression");
-            return new PrintlnStatementNode(expr);
-        }
-
-        private ASTNode ParseExpression()
+        private Expression ParseExpression()
         {
             return ParseTerm();
         }
 
-        private ASTNode ParseTerm()
+        private Expression ParseTerm()
         {
-            ASTNode node = ParseFactor();
+            Expression node = ParseFactor();
 
-            while (Peek().Type == TokenType.Operator && (Peek().Value == "+" || Peek().Value == "-"))
+            if (Peek().Type == TokenType.Operator && (Peek().Value == "+" || Peek().Value == "-"))
             {
                 Token operatorToken = NextToken();
-                ASTNode right = ParseFactor();
+                Expression right = ParseTerm();
                 node = new BinaryOperationNode(node, operatorToken.Value, right);
             }
 
             return node;
         }
 
-        private ASTNode ParseFactor()
+        private Expression ParseFactor()
         {
-            ASTNode node = ParsePrimary();
+            Expression node = ParseCall();
 
-            while (Peek().Type == TokenType.Operator && (Peek().Value == "*" || Peek().Value == "/"))
+            if (Peek().Type == TokenType.Operator && (Peek().Value == "*" || Peek().Value == "/"))
             {
                 Token operatorToken = NextToken();
-                ASTNode right = ParsePrimary();
+                Expression right = ParseFactor();
                 node = new BinaryOperationNode(node, operatorToken.Value, right);
             }
 
             return node;
         }
 
-        private ASTNode ParsePrimary()
+        private Expression ParseCall()
+        {
+            Expression node = ParsePrimary();
+
+
+            while (Peek().Type == TokenType.LeftParen || Peek().Type == TokenType.Dot || Peek().Type == TokenType.SquareOpen)
+            {
+                Token next = Peek();
+                if (next.Type == TokenType.Dot)
+                {
+                    NextToken();
+                    string name = Consume(TokenType.Identifier, "").Value;
+                    node = new PropertyAccess { Parent = node, Name = name };
+                }
+
+                if (next.Type == TokenType.LeftParen)
+                {
+                    List<Expression> args = ParseCallingArgs();
+                    if (node is PropertyAccess n)
+                    {
+                        node = new MethodCall { Args = args, Name = n.Name, Parent = n.Parent };
+                    }
+                    else
+                    {
+                        node = new Invokation { Args = args, Parent = node };
+                    }
+                }
+
+                if (next.Type == TokenType.SquareOpen)
+                {
+                    NextToken();
+                    Expression index = ParseExpression();
+                    Consume(TokenType.SquareClose, "Expected `]`");
+                    node = new Indexing { Parent = node, Index = index };
+                }
+
+            }
+
+            return node;
+        }
+
+        private List<Expression> ParseCallingArgs()
+        {
+            Consume(TokenType.LeftParen, "Expected (");
+
+            if (Peek().Type == TokenType.RightParen)
+            {
+                NextToken();
+                return new List<Expression>();
+            }
+
+            List<Expression> arguments = new List<Expression>();
+            while (true)
+            {
+                arguments.Add(ParseExpression());
+                Token next = NextToken();
+                switch (next.Type)
+                {
+                    case TokenType.Comma:
+                        continue;
+                    case TokenType.RightParen:
+                        return arguments;
+                    default:
+                        throw new Exception("Expected , or )");
+                }
+            }
+        }
+
+
+        private Expression ParsePrimary()
         {
             Token current = Peek();
 
             switch (current.Type)
             {
                 case TokenType.IntegerLiteral:
+                    NextToken();
+                    return new ConstInt { Value = int.Parse(current.Value) };
                 case TokenType.FloatLiteral:
+                    NextToken();
+                    return new ConstDouble { Value = double.Parse(current.Value) };
                 case TokenType.StringLiteral:
                     NextToken();
-                    return new LiteralNode(current.Value);
+                    return new ConstString { Value = current.Value };
+                case TokenType.SquareOpen:
+                    return ParseArray();
                 case TokenType.Identifier:
                     NextToken();
                     return new IdentifierNode(current.Value);
+                case TokenType.KeywordIf:
+                    return ParseIfStatement();
+                case TokenType.KeywordFunc:
+                    return ParseAnonymousFunc();
+                case TokenType.LeftParen:
+                    NextToken();
+                    Expression expr = ParseExpression();
+                    Consume(TokenType.RightParen, "Expected closing brace");
+                    return expr;
                 default:
                     throw new Exception($"Unexpected token: {current}");
             }
+        }
+
+        private ConstFunction ParseAnonymousFunc()
+        {
+            Consume(TokenType.KeywordFunc, "Expected func keyword");
+            ArgNode args = ParseArgs();
+            Expression body = ParseBlockNode();
+
+            return new ConstFunction { Args = args.Names, Body = body };
         }
 
         private Token Consume(TokenType type, string errorMessage)
@@ -518,6 +421,15 @@ namespace VSharp
         {
             if (IsAtEnd()) return new Token(TokenType.EndOfInput, "");
             return _tokens[_position];
+        }
+
+        private Token Peek2()
+        {
+            if (_position + 1 >= _tokens.Count)
+            {
+                return new Token(TokenType.EndOfInput, "");
+            }
+            return _tokens[_position + 1];
         }
 
         private Token NextToken()
