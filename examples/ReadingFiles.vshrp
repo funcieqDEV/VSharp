@@ -1,0 +1,2 @@
+set content = File.ReadFile("test.txt")
+IO.Println(content)
