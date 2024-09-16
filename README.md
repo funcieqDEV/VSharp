@@ -32,7 +32,7 @@ at this point you can already use V#
 - administrator permissions
 - Console
 ### Special thanks
-[Thanks]("./SPECIAL_THANKS.MD/")
+[Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
 ### Compilation
 - **Download source**
 after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
