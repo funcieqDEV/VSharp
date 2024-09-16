@@ -9,15 +9,12 @@ namespace VSharp
     public enum TokenType
     {
         KeywordSet,
-        KeywordPrint,
-        KeywordPrintln,
-        KeywordInput,
         KeywordIf,
         KeywordElse,
-        KeywordConvertToInt,
         KeywordWhile,
-        KeywordForegroundColor,
+        KeywordFor,
         KeywordFunc,
+        KeywordIn,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -28,6 +25,8 @@ namespace VSharp
         RightParen,
         LeftBrace,
         RightBrace,
+        SquareOpen,
+        SquareClose,
         LogicalOr,
         LogicalAnd,
         Less,
@@ -37,7 +36,8 @@ namespace VSharp
         Equal,
         NotEqual,
         Comma,
-        EndOfInput
+        EndOfInput,
+        Dot
     }
 
     public class Token
@@ -65,17 +65,14 @@ namespace VSharp
         private static readonly Dictionary<string, TokenType> Keywords = new()
         {
             { "set", TokenType.KeywordSet },
-            { "print", TokenType.KeywordPrint },
-            { "input", TokenType.KeywordInput },
             { "if", TokenType.KeywordIf },
             { "else", TokenType.KeywordElse },
             { "or", TokenType.LogicalOr },
             { "and", TokenType.LogicalAnd },
-            { "println", TokenType.KeywordPrintln},
             { "while", TokenType.KeywordWhile},
-            { "ConvertToInt", TokenType.KeywordConvertToInt},
-            { "ForegroundColor", TokenType.KeywordForegroundColor},
-            { "func", TokenType.KeywordFunc}
+            { "func", TokenType.KeywordFunc},
+            { "for", TokenType.KeywordFor},
+            { "in", TokenType.KeywordIn }
         };
 
         public Lexer(string input)
@@ -87,7 +84,7 @@ namespace VSharp
         public List<Token> Tokenize()
         {
             var tokens = new List<Token>();
-
+            
             while (_position < _input.Length)
             {
                 char currentChar = _input[_position];
@@ -96,7 +93,7 @@ namespace VSharp
                 {
                     _position++;
                 }
-                else if (char.IsLetter(currentChar) || currentChar == '$' || currentChar == '_')
+                else if (char.IsLetter(currentChar))
                 {
                     tokens.Add(ReadIdentifierOrKeyword());
                 }
@@ -155,12 +152,12 @@ namespace VSharp
                 {
                     if (LookAhead() == '/')
                     {
-                        
+
                         while (_position < _input.Length && _input[_position] != '\n')
                         {
                             _position++;
                         }
-                        continue; 
+                        continue;
                     }
                 }
                 else if (currentChar == '>')
@@ -201,6 +198,21 @@ namespace VSharp
                     tokens.Add(new Token(TokenType.RightBrace, "}"));
                     _position++;
                 }
+                else if (currentChar == '[')
+                {
+                    tokens.Add(new Token(TokenType.SquareOpen, "["));
+                    _position++;
+                }
+                else if (currentChar == '.')
+                {
+                    tokens.Add(new Token(TokenType.Dot, "."));
+                    _position++;
+                }
+                else if (currentChar == ']')
+                {
+                    tokens.Add(new Token(TokenType.SquareClose, "]"));
+                    _position++;
+                }
                 else
                 {
                     throw new Exception($"Unexpected character: {currentChar}");
@@ -217,7 +229,7 @@ namespace VSharp
             {
                 return _input[_position + 1];
             }
-            return '\0'; 
+            return '\0';
         }
 
         private bool IsOperator(char c)
@@ -228,7 +240,7 @@ namespace VSharp
         private Token ReadIdentifierOrKeyword()
         {
             int start = _position;
-            while (_position < _input.Length && (char.IsLetter(_input[_position]) || currentChar == '$' || currentChar == '_'))
+            while (_position < _input.Length && (char.IsLetter(_input[_position]) || _input[_position] == '_'))
             {
                 _position++;
             }
@@ -266,7 +278,7 @@ namespace VSharp
 
         private Token ReadString()
         {
-            int start = ++_position; 
+            int start = ++_position;
             while (_position < _input.Length && _input[_position] != '"')
             {
                 _position++;
@@ -278,7 +290,7 @@ namespace VSharp
             }
 
             string value = _input.Substring(start, _position - start);
-            _position++; 
+            _position++;
             return new Token(TokenType.StringLiteral, value);
         }
     }
