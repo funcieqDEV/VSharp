@@ -1,0 +1,2 @@
+set a = "hello world"
+File.WriteFile("test.txt",a)
