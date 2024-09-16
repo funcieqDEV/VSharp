@@ -1,0 +1,3 @@
+IO.Println("text with new line")
+IO.Print("text without new line")
+set x = IO.Input()
