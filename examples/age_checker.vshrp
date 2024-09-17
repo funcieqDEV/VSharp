@@ -1,7 +1,7 @@
 set age = 0
 
 IO.Println("How old are you?")
-age = Convert.ToInt(IO.Input())
+set age = Convert.ToInt(IO.Input())
 if(age >= 18){
   println("nice you are an adult")
 }
