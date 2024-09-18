@@ -192,6 +192,16 @@ namespace VSharpLib
         {
             return System.Convert.ToString(s);
         }
+
+        public float? ToFloat(object? num)
+        {
+            return System.Convert.ToSingle(num);
+        }
+
+        public bool? ToBool(object? value)
+        {
+            return System.Convert.ToBoolean(value);
+        }
     }
 
     [Module]
