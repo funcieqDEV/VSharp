@@ -139,6 +139,46 @@ namespace VSharpLib
         {
             return System.Math.Sqrt(value);
         }
+
+        public double Sin(double angle)
+        {
+            return System.Math.Sin(angle);
+        }
+
+        public double Cos(double angle)
+        {
+            return System.Math.Cos(angle);
+        }
+
+        public double Tan(double angle)
+        {
+            return System.Math.Tan(angle);
+        }
+
+        public double Asin(double value)
+        {
+            return System.Math.Asin(value);
+        }
+
+        public double Acos(double value)
+        {
+            return System.Math.Acos(value);
+        }
+
+        public double Atan(double value)
+        {
+            return System.Math.Atan(value);
+        }
+
+        public double Round(double value)
+        {
+            return System.Math.Round(value);
+        }
+
+        public double Ceiling(double value)
+        {
+            return System.Math.Ceiling(value);
+        }
     }
 
     [Module]
