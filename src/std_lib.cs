@@ -109,6 +109,36 @@ namespace VSharpLib
             Random rnd = new Random();
             return rnd.Next(min, max);
         }
+
+        public double GetPI()
+        {
+            return System.Math.PI;
+        }
+
+        public double Abs(double value)
+        {
+            return System.Math.Abs(value);
+        }
+
+        public double Max(double a, double b)
+        {
+            return System.Math.Max(a, b);
+        }
+
+        public double Min(double a, double b)
+        {
+            return System.Math.Min(a, b);
+        }
+
+        public double Pow(double x, double y)
+        {
+            return System.Math.Pow(x, y);
+        }
+
+        public double Sqrt(double value)
+        {
+            return System.Math.Sqrt(value);
+        }
     }
 
     [Module]
