@@ -109,6 +109,76 @@ namespace VSharpLib
             Random rnd = new Random();
             return rnd.Next(min, max);
         }
+
+        public double GetPI()
+        {
+            return System.Math.PI;
+        }
+
+        public double Abs(double value)
+        {
+            return System.Math.Abs(value);
+        }
+
+        public double Max(double a, double b)
+        {
+            return System.Math.Max(a, b);
+        }
+
+        public double Min(double a, double b)
+        {
+            return System.Math.Min(a, b);
+        }
+
+        public double Pow(double x, double y)
+        {
+            return System.Math.Pow(x, y);
+        }
+
+        public double Sqrt(double value)
+        {
+            return System.Math.Sqrt(value);
+        }
+
+        public double Sin(double angle)
+        {
+            return System.Math.Sin(angle);
+        }
+
+        public double Cos(double angle)
+        {
+            return System.Math.Cos(angle);
+        }
+
+        public double Tan(double angle)
+        {
+            return System.Math.Tan(angle);
+        }
+
+        public double Asin(double value)
+        {
+            return System.Math.Asin(value);
+        }
+
+        public double Acos(double value)
+        {
+            return System.Math.Acos(value);
+        }
+
+        public double Atan(double value)
+        {
+            return System.Math.Atan(value);
+        }
+
+        public double Round(double value)
+        {
+            return System.Math.Round(value);
+        }
+
+        public double Ceiling(double value)
+        {
+            return System.Math.Ceiling(value);
+        }
     }
 
     [Module]
@@ -121,6 +191,16 @@ namespace VSharpLib
         public string? ToString(object? s)
         {
             return System.Convert.ToString(s);
+        }
+
+        public float? ToFloat(object? num)
+        {
+            return System.Convert.ToSingle(num);
+        }
+
+        public bool? ToBool(object? value)
+        {
+            return System.Convert.ToBoolean(value);
         }
     }
 
