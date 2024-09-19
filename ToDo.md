@@ -1,6 +1,6 @@
 
 > * full support for float and string
-> * import library
+> * _import library_
 > * gui support 
 > * code editor for V#
 > * list
