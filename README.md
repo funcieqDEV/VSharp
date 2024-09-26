@@ -35,7 +35,7 @@ at this point you can already use V#
 [Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
 ### Compilation
 - **Download source**
-after you download source you shoud check if<br> you have .net 7.0 and right code editor like Visual studio
+after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio
 
 - **Create new project in Visual studio**
 once you have created a new project you should add files from the **src** folder to your project
