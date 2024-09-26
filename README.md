@@ -48,7 +48,7 @@ if you want use V# interpreter first you need to create a Lexer class with input
 
 
 ### documentation
- You can find documentation on our [official website]([https://github.com/funcieqDEV/VSharp](https://funcieqdev.github.io/vsharp-docs/))
+ You can find documentation on our [official website]([https://github.com/funcieqDEV/VSharp](https://funcieqdev.github.io/vsharp-docs/)
  or you can find it here on github [docs](https://github.com/funcieqDEV/VSharp-docs/tree/main)
 
 - **run the project**
