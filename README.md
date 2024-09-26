@@ -27,7 +27,7 @@ characteristics:
 at this point you can already use V#
 
 ### Requirements 
-- **.net 7.0** install.bat will download the installer file for you 
+- **.net 8.0** install.bat will download the installer file for you 
 - the file editor can be a regular notepad
 - administrator permissions
 - Console
