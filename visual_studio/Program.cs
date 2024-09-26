@@ -11,29 +11,6 @@ public class Program
         string input = String.Empty;
         string version = "0.2.1";
         Interpreter interpreter = new Interpreter();
-
-        //Console.WriteLine("V# Shell - Wpisz polecenie lub *exit aby zakończyć.");
-        /*  while (true)
-          {
-              Console.Write("> ");
-              string input = Console.ReadLine();
-
-
-              if (input.Trim().ToLower() == "*exit")
-              {
-                  break;
-              }
-
-
-              Lexer lexer = new Lexer(input);
-              List<Token> tokens = lexer.Tokenize();
-
-              Parser parser = new Parser(tokens);
-              ProgramNode program = parser.Parse();
-
-              interpreter.Interpret(program);
-          }
-        */
         if (args.Length > 0)
         {
             if (args[0] == "--version")
