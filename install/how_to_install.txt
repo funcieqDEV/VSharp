@@ -1,3 +1,0 @@
-run install.bat, the installer will install V# and start downloading .net 7.0,
-once it is downloaded run the .net 7.0 installer, 
-after the installation is complete you will be able to use V# freely
