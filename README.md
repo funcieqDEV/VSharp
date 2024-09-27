@@ -33,16 +33,13 @@ at this point you can already use V#
 - Console
 ### Special thanks
 [Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
+
 ### Compilation
 - **Download source**
 after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio
 
-- **Create new project in Visual studio**
-once you have created a new project you should add files from the **src** folder to your project
-
-- **Edit main.cs/program.cs**
-if you want use V# interpreter first you need to create a Lexer class with input(your V# code) as an argument,
-<br> then create a Parser class. In the Parser constructor use the Lexer method `Tokenize` as an argument which will return a list of tokens<br> next step is create a Interpreter class and in constructor put Parser method `Parse` it will return ProgramNode, now you can use Interpreter method `Interpret`
+- **Build the project**
+once you have .net 8.0, go to the directory where the project files are located and use `dotnet build`
 
 
 
