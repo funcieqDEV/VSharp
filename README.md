@@ -6,7 +6,8 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/funcieqDEV/VSharp)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 ![GitHub stars](https://img.shields.io/github/stars/funcieqDev/VSharp)
-![GitHub download](https://img.shields.io/github/downloads/funcieqDev/VSharp)
+![GitHub all releases](https://img.shields.io/github/downloads/funcieqDev/VSharp/total)
+
 
 
 
