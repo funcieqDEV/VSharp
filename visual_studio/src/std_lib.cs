@@ -7,7 +7,7 @@ namespace VSharp
     {
         public static Variables StdLib()
         {
-            Variables vars = new Variables();
+            Variables vars = new();
 
             vars.SetVar("int", NativeFunc.FromClosure((args) =>
             {

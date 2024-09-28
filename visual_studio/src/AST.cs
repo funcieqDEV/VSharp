@@ -81,9 +81,12 @@ namespace VSharp
     public class ImportStatemnt : ASTNode
     {
         public Expression Expression { get; }
-        public ImportStatemnt(Expression expr)
+
+        public string? Name { get; }
+        public ImportStatemnt(Expression expr, string? name)
         {
-            this.Expression = expr;
+            Expression = expr;
+            Name = name;
         }
     }
 

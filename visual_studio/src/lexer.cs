@@ -38,7 +38,8 @@ namespace VSharp
         NotEqual,
         Comma,
         EndOfInput,
-        Dot
+        Dot,
+        KeywordAs
     }
 
     public class Token
@@ -74,7 +75,8 @@ namespace VSharp
             { "func", TokenType.KeywordFunc},
             { "for", TokenType.KeywordFor},
             { "in", TokenType.KeywordIn },
-            { "import",TokenType.KeywordImport}
+            { "import",TokenType.KeywordImport},
+            { "as",TokenType.KeywordAs}
         };
 
         public Lexer(string input)

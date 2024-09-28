@@ -25,10 +25,8 @@ public class Program
                     Lexer lexer = new Lexer(input);
                     List<Token> tokens = lexer.Tokenize();
 
-                    lexer = null;
                     Parser parser = new Parser(tokens);
                     ProgramNode program = parser.Parse();
-                    parser = null;
                     interpreter.Interpret(program);
                 }
                 catch (Exception e)

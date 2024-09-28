@@ -55,8 +55,14 @@ namespace VSharp
         {
             Consume(TokenType.KeywordImport, "Expected 'import' keyword.");
             var path = ParseExpression();
+            string? name = null;
+            if (Peek().Type == TokenType.KeywordAs)
+            {
+                NextToken();
+                name = Consume(TokenType.Identifier, "Expected identifier").Value;
+            }
 
-            return new ImportStatemnt(path);
+            return new ImportStatemnt(path, name);
         }
         private ForLoop ParseForLoop()
         {

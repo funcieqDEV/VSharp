@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\3TP\\Desktop\\V\\V_Sharp\\V_Sharp\\V_Sharp.csproj": {}
+    "C:\\Users\\danie\\VSharp\\visual_studio\\V_Sharp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\3TP\\Desktop\\V\\V_Sharp\\V_Sharp\\V_Sharp.csproj": {
+    "C:\\Users\\danie\\VSharp\\visual_studio\\V_Sharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\3TP\\Desktop\\V\\V_Sharp\\V_Sharp\\V_Sharp.csproj",
+        "projectUniqueName": "C:\\Users\\danie\\VSharp\\visual_studio\\V_Sharp.csproj",
         "projectName": "V_Sharp",
-        "projectPath": "C:\\Users\\3TP\\Desktop\\V\\V_Sharp\\V_Sharp\\V_Sharp.csproj",
-        "packagesPath": "C:\\Users\\3TP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\3TP\\Desktop\\V\\V_Sharp\\V_Sharp\\obj\\",
+        "projectPath": "C:\\Users\\danie\\VSharp\\visual_studio\\V_Sharp.csproj",
+        "packagesPath": "C:\\Users\\danie\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\danie\\VSharp\\visual_studio\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\3TP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\danie\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -70,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.402/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
