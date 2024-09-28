@@ -1,18 +1,17 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text;
 
-namespace VSharp
+namespace VSharp 
 {
-    static class StdLibFactory
+    static class StdLibFactory 
     {
-        public static Variables StdLib()
+        public static Variables StdLib(Interpreter interpreter)
         {
-            Variables vars = new();
+            Variables vars = new Variables();
 
             vars.SetVar("int", NativeFunc.FromClosure((args) =>
             {
-                return args[0] switch
-                {
+                return args[0] switch {
                     int i => i,
                     string s => int.Parse(s),
                     _ => throw new Exception("Cannot cast to int")
@@ -28,14 +27,32 @@ namespace VSharp
             var types = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(it => it.Namespace == "VSharpLib" && Attribute.IsDefined(it, typeof(Module)))
-                .Select(it => (it.Name, Activator.CreateInstance(it)))
+                .Select(it => (it.Name, InstantiateModule(it, interpreter)))
                 .ToArray();
 
             foreach (var (name, instance) in types)
             {
-                vars.SetVar(name, instance);
+                vars.SetVar(ToLowerSnakeCase(name), instance);
             }
             return vars;
+        }
+
+        public static object InstantiateModule(Type moduleType, Interpreter interpreter)
+        {
+
+            // Try to find a constructor that takes an Interpreter as an argument
+            ConstructorInfo? constructor = moduleType.GetConstructor(new[] { typeof(Interpreter) });
+
+
+            if (constructor != null)
+            {
+                // If a matching constructor exists, invoke it with the interpreter instance
+                return constructor.Invoke(new object[] { interpreter });
+            }
+            else
+            {
+                return Activator.CreateInstance(moduleType) ?? throw new Exception("Could not instantiate");
+            }
         }
 
         public static string ToLowerSnakeCase(string input)
@@ -63,34 +80,27 @@ namespace VSharp
     }
 }
 
-namespace VSharpLib
+namespace VSharpLib 
 {
-    using SFML.Graphics;
-    using SFML.System;
-    using SFML.Window;
     using System.Collections;
+    using System.Diagnostics;
+    using System.Net.Http.Headers;
     using System.Net.Http.Json;
     using System.Text.Json;
+    using System.Text.Json.Nodes;
     using VSharp;
 
     [Module]
-    class IO
+    class Io 
     {
         public void Println(object? arg)
         {
-            Console.WriteLine(arg);
+            Console.WriteLine(arg?.ToString() ?? "null");
         }
-
-        public void Print(object? arg)
-        {
-            Console.Write(arg);
-        }
-
-
 
         public string? Input(object? message)
         {
-            Console.Write(message);
+            Console.WriteLine(message);
             return Console.ReadLine();
         }
 
@@ -101,52 +111,15 @@ namespace VSharpLib
         }
 
 
+        public string ReadFile(string name)
+        {
+            return File.ReadAllText(name);
+        }
 
     }
 
     [Module]
-    class Math
-    {
-        public int? RandInt(int min, int max)
-        {
-            Random rnd = new Random();
-            return rnd.Next(min, max);
-        }
-
-        public int? Minus(int num)
-        {
-            return -num;
-        }
-    }
-
-    [Module]
-    class Convert
-    {
-        public int? ToInt(object? num)
-        {
-            return System.Convert.ToInt32(num);
-        }
-        public string? ToString(object? s)
-        {
-            return System.Convert.ToString(s);
-        }
-    }
-
-    [Module]
-    class File
-    {
-        public string? ReadFile(object name)
-        {
-            return System.IO.File.ReadAllText(name.ToString());
-        }
-
-        public void WriteFile(object name, object value)
-        {
-            System.IO.File.WriteAllText(name.ToString(), value.ToString());
-        }
-    }
-    [Module]
-    class Object
+    class Object 
     {
         public VSharpObject New()
         {
@@ -154,123 +127,132 @@ namespace VSharpLib
         }
     }
 
-
     [Module]
-    class Http
+    class Error 
     {
-        public HttpResponse Get(string url)
+        public void Throw(object? reason)
         {
-            using (HttpClient client = new HttpClient())
-            {
-                HttpResponseMessage response = client.GetAsync(url).Result;
-                return new HttpResponse(response);
-            }
+            throw new Exception(reason?.ToString());
         }
     }
 
     [Module]
-
-    class BG
+    class Json
     {
-
-        public RenderWindow CreateWindow(int w, int h, string title)
+        public object? Parse(string content) 
         {
-            return new RenderWindow(new VideoMode((uint)w, (uint)h), title);
+            return ParseElement(JsonDocument.Parse(content).RootElement);
         }
 
-    }
-
-
-
-
-    [Module]
-    class RectShape
-    {
-        public RectangleShape New(int x,int y,int w,int h)
+        public string ToString(object? json)
         {
-            var r =  new RectangleShape(new Vector2f(w,h));
-            r.Position = new Vector2f(x,y);
-            return r;
-        }
-    }
-
-    [Module]
-
-    class _Vector
-    {
-        public Vector2f New(int x,int y)
-        {
-            return new Vector2f(x,y);
-        }
-    }
-
-
-    class HttpResponse
-    {
-        HttpResponseMessage response;
-
-        public HttpResponse(HttpResponseMessage response)
-        {
-            this.response = response;
-        }
-
-        public int StatusCode()
-        {
-            return (int)response.StatusCode;
-        }
-
-        public string Content()
-        {
-            return response.Content.ReadAsStringAsync().Result;
-        }
-
-        public object? Json()
-        {
-            string content = Content();
-            if (content.StartsWith("["))
+            if (json == null) 
             {
-                var result = JsonSerializer.Deserialize<List<object>>(content);
-                return JsonWrapper.WrapObject(result);
+                throw new Exception("Cannot serialize null");
             }
-            else
-            {
-                var result = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
-                return JsonWrapper.WrapObject(result);
-            }
+            return JsonSerializer.Serialize(json);
         }
-    }
 
-
-    public class JsonWrapper
-    {
-        public static object? WrapObject(object? obj)
+        public static object? ParseElement(JsonElement element)
         {
- 
-            if (obj == null)
+            // Handle JSON object
+            if (element.ValueKind == JsonValueKind.Object)
             {
-                return null;
-            }
-
-          
-            return obj switch
-            {
-           
-                Dictionary<string, object?> dict => new VSharpObject
+                var dict = new Dictionary<object, object?>();
+                foreach (JsonProperty prop in element.EnumerateObject())
                 {
-                    Entries =
-                    dict.ToDictionary(
-                        kvp => (object)kvp.Key,
-                        kvp => WrapObject(kvp.Value) 
-                    )
-                },
+                    dict[prop.Name] = ParseElement(prop.Value);
+                }
+                return new VSharpObject { Entries = dict };
+            }
+            
+            // Handle JSON array
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                var list = new List<object?>();
+                foreach (JsonElement arrayElement in element.EnumerateArray())
+                {
+                    list.Add(ParseElement(arrayElement));
+                }
+                return list;
+            }
 
-             
-                IList list => list.Cast<object?>().Select(WrapObject).ToList(),
-
-           
-                _ => obj
-            };
+            // Handle primitive values
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return element.GetString();
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int intValue))
+                        return intValue;
+                    else
+                        return element.GetDouble(); // For non-integer numbers
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return element.GetBoolean();
+                case JsonValueKind.Null:
+                    return null;
+                default:
+                    return element.ToString(); // Fallback for other types
+            }
         }
     }
 
+    [Module]
+    public class Range
+    {
+        public RangeObj New(int upper) {
+            return new RangeObj(0, upper);
+        }
+
+        public RangeObj New(int lower, int upper) {
+            return new RangeObj(lower, upper);
+        }
+    }
+
+    public class RangeObj : IEnumerable<object>, IEnumerator<object> {
+        public int Lower { get; }
+        public int Upper { get; }
+
+        public object Current => current;
+
+        int current;
+
+        public RangeObj(int lower, int upper) {
+            this.Lower = lower;
+            this.Upper = upper;
+            current = Lower;
+        }
+
+        public bool MoveNext()
+        {
+            if (current < Upper) {
+                current++;
+                return true;
+            }
+            return false;
+        }
+
+        public void Reset()
+        {
+            current = Lower;
+        }
+
+
+        public void Dispose()
+        {
+            current = Lower;
+        }
+
+        IEnumerator<object> IEnumerable<object>.GetEnumerator()
+        {
+            return this;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return this;
+        }
+    }
 }
+
