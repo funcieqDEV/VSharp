@@ -1,29 +1,32 @@
-﻿using System.Collections.Generic;
+using System.Linq;
 
-namespace VSharp
-{
+namespace VSharp {
     public abstract class ASTNode { }
-
 
     public class ProgramNode : ASTNode
     {
         public List<ASTNode> Statements { get; }
 
-        public ProgramNode()
-        {
-            Statements = new List<ASTNode>();
-        }
+        public ProgramNode() => Statements = [];
     }
 
-    public class ExprStatement : ASTNode
+    public class ExprStatement(Expression expr) : ASTNode {
+        public readonly Expression Expression= expr;
+    }
+
+    public class Return : ASTNode
     {
-        public Expression Expression { get; }
+        public Expression? Expr;
 
-        public ExprStatement(Expression expr)
-        {
-            Expression = expr;
-        }
     }
+
+    public class Break : ASTNode
+    {
+        public Expression? Expr;
+    }
+
+    public class Continue : ASTNode
+    {}
 
     public class ArgNode : ASTNode
     {
@@ -31,16 +34,30 @@ namespace VSharp
 
         public ArgNode()
         {
-            Names = new List<string>();
+            Names = [];
         }
+    }
+
+    public class ImportStatement(Expression path, string? name) : ASTNode
+    {
+        public readonly Expression Path = path;
+        public readonly string? Name = name;
+    }
+
+    public class TypeStatement : ASTNode 
+    {
+        public required string[] Generics;
+        public required string Name;
+        public required VType Type;
+
     }
     public class FuncStatementNode : ASTNode
     {
         public string Name { get; set; }
-        public List<string> Args { get; set; }
+        public List<(string, VType?)> Args { get; set; }
         public BlockNode Block { get; set; }
         public Dictionary<string, object> Vars { get; set; }
-
+        public VType? ReturnType;
         public FuncStatementNode()
         {
             Block = new BlockNode();
@@ -59,7 +76,7 @@ namespace VSharp
         }
     }
 
-    public class ForLoop : ASTNode
+    public class ForLoop : ASTNode 
     {
         public required Expression Body;
         public required Expression Parent;
@@ -78,30 +95,21 @@ namespace VSharp
         }
     }
 
-    public class ImportStatemnt : ASTNode
-    {
-        public Expression Expression { get; }
-        public ImportStatemnt(Expression expr)
-        {
-            this.Expression = expr;
-        }
-    }
-
-    public class PropertyAssignment : ASTNode
+    public class PropertyAssignment : ASTNode 
     {
         public required Expression Parent;
         public required string Name;
         public required Expression Value;
     }
 
-    public class IndexAssignment : ASTNode
+    public class IndexAssignment : ASTNode 
     {
         public required Expression Parent;
         public required Expression Index;
         public required Expression Value;
     }
 
-    public abstract class Expression { }
+    public abstract class Expression {}
 
     public class ConstString : Expression
     {
@@ -113,9 +121,31 @@ namespace VSharp
         public required int Value { get; set; }
     }
 
+    public class ConstBool : Expression 
+    {
+        public required bool Value { get; set; }
+    }
+
     public class ConstDouble : Expression
     {
         public required double Value { get; set; }
+    }
+
+    public class Not : Expression 
+    {
+        public required Expression Value {get; set;}
+    }
+
+    public class HasElementCheck : Expression
+    {
+        public required Expression Item;
+        public required Expression Container;
+    }
+
+    public class TypeCheck : Expression
+    {
+        public required Expression Item;
+        public required VType Type;
     }
 
 
@@ -129,7 +159,7 @@ namespace VSharp
         }
     }
 
-    public class ConstArray : Expression
+    public class ConstArray : Expression 
     {
         public List<Expression> Expressions;
 
@@ -144,16 +174,18 @@ namespace VSharp
         }
     }
 
-    public class ConstObject : Expression
+    public class ConstObject : Expression 
     {
-        public required Dictionary<string, Expression> Entries { get; set; }
-
+        public required Dictionary<object, Expression> Entries {get; set;}
+        
     }
 
-    public class ConstFunction : Expression
+    public class ConstFunction : Expression 
     {
-        public required List<string> Args;
+        public required List<(string, VType?)> Args;
         public required Expression Body;
+        public required string[] Generics;
+        public VType? ReturnType;
     }
 
 
@@ -171,7 +203,7 @@ namespace VSharp
         }
     }
 
-    public class PropertyAccess : Expression
+    public class PropertyAccess : Expression 
     {
         public required Expression Parent;
         public required string Name;
@@ -180,9 +212,9 @@ namespace VSharp
 
     public class MethodCall : Expression
     {
-        public required Expression Parent { get; set; }
-        public required string Name { get; set; }
-        public required List<Expression> Args { get; set; }
+        public required Expression Parent {get; set; }
+        public required string Name {get; set; }
+        public required List<Expression> Args { get; set;}
     }
 
     public class LogicalNode : Expression
@@ -199,19 +231,19 @@ namespace VSharp
         }
     }
 
-
+    
     public class Invokation : Expression
     {
         public required List<Expression> Args { get; set; }
-        public required Expression Parent { get; set; }
+        public  required Expression Parent { get; set; }
 
     }
 
-
+    
     public class IfNode : Expression
     {
         public Expression Condition { get; set; }
-        public Expression TrueBlock { get; set; }
+        public Expression TrueBlock { get; set; } //allow for not only blocks to be if bodies
         public Expression FalseBlock { get; set; }
 
         public IfNode()
@@ -241,4 +273,62 @@ namespace VSharp
             Statements = statements;
         }
     }
+
+    public abstract record VType {
+
+        public VType Join(VType other)
+        {
+            if (this == other)
+            {
+                return this;
+            }
+            if (this is Union u1 && other is Union u2) 
+            {
+                return new Union(u1.Types.Concat(u2.Types).ToHashSet());
+            } 
+            if (this is Union u) 
+            {
+                return new Union(u.Types.Concat(Enumerable.Repeat(other, 1)).ToHashSet());
+            }
+            if (other is Union union) 
+            {
+                return new Union(union.Types.Concat(Enumerable.Repeat(this, 1)).ToHashSet());
+            }
+            return new Union(new() { this, other });
+        }
+
+        public VType Intersect(VType other)
+        {
+            if (this == other)
+            {
+                return this;
+            }
+            if (this is Intersection i1 && other is Intersection i2)
+            {
+                return new Intersection(i1.Types.Concat(i1.Types).ToHashSet());
+            }
+            if (this is Intersection i3)
+            {
+                return new Intersection(i3.Types.Concat(Enumerable.Repeat(other, 1)).ToHashSet());
+            }
+            if (other is Intersection i4)
+            {
+                return new Intersection(i4.Types.Concat(Enumerable.Repeat(this, 1)).ToHashSet());
+            }
+
+            return new Intersection(new() { this, other });
+        }
+        public record Union(HashSet<VType> Types) : VType;
+
+        public record Intersection(HashSet<VType> Types): VType;
+        public record Normal(string[] Type, VType[] Generics): VType;
+
+        public record Func(VType[] Args, VType ReturnType): VType;
+
+        public record Array(VType ItemType) : VType;
+        public record Object(Dictionary<string, VType> Entires): VType;
+
+    }
+
+
 }

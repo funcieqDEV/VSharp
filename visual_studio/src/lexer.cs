@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,7 +15,15 @@ namespace VSharp
         KeywordFor,
         KeywordFunc,
         KeywordIn,
+        KeywordReturn,
+        KeywordContinue,
+        KeywordBreak,
+        KeywordTrue,
+        KeywordFalse,
+        KeywordType,
         KeywordImport,
+        KeywordIs,
+        KeywordAs,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -38,7 +46,11 @@ namespace VSharp
         NotEqual,
         Comma,
         EndOfInput,
-        Dot
+        Dot,
+        ExclamationMark,
+        Colon,
+        Or,
+        And
     }
 
     public class Token
@@ -59,10 +71,10 @@ namespace VSharp
     }
 
 
-    public class Lexer
+    public class Lexer(string input)
     {
-        private readonly string _input;
-        private int _position;
+        private readonly string _input = input;
+        private int _position = 0;
         private static readonly Dictionary<string, TokenType> Keywords = new()
         {
             { "set", TokenType.KeywordSet },
@@ -74,14 +86,16 @@ namespace VSharp
             { "func", TokenType.KeywordFunc},
             { "for", TokenType.KeywordFor},
             { "in", TokenType.KeywordIn },
-            { "import",TokenType.KeywordImport}
+            { "return", TokenType.KeywordReturn },
+            { "break", TokenType.KeywordBreak },
+            { "continue", TokenType.KeywordContinue },
+            { "true", TokenType.KeywordTrue },
+            { "false", TokenType.KeywordFalse },
+            { "type", TokenType.KeywordType },
+            { "is", TokenType.KeywordIs },
+            { "as", TokenType.KeywordAs },
+            { "import", TokenType.KeywordAs },
         };
-
-        public Lexer(string input)
-        {
-            _input = input;
-            _position = 0;
-        }
 
         public List<Token> Tokenize()
         {
@@ -95,7 +109,7 @@ namespace VSharp
                 {
                     _position++;
                 }
-                else if (char.IsLetter(currentChar) || currentChar == '_')
+                else if (char.IsLetter(currentChar))
                 {
                     tokens.Add(ReadIdentifierOrKeyword());
                 }
@@ -129,13 +143,19 @@ namespace VSharp
                     }
                     else
                     {
-                        throw new Exception($"Unexpected character: {currentChar}");
+                        _position++;
+                        tokens.Add(new Token(TokenType.ExclamationMark, "!"));
                     }
                 }
                 else if (currentChar == ',')
                 {
                     _position++;
                     tokens.Add(new Token(TokenType.Comma, ","));
+                }
+                else if (currentChar == ':')
+                {
+                    _position++;
+                    tokens.Add(new Token(TokenType.Colon, ":"));
                 }
                 else if (currentChar == '<')
                 {
@@ -183,6 +203,16 @@ namespace VSharp
                 else if (currentChar == '(')
                 {
                     tokens.Add(new Token(TokenType.LeftParen, "("));
+                    _position++;
+                }
+                else if (currentChar == '|')
+                {
+                    tokens.Add(new Token(TokenType.Or, "|"));
+                    _position++;
+                }
+                else if (currentChar == '&')
+                {
+                    tokens.Add(new Token(TokenType.And, "&"));
                     _position++;
                 }
                 else if (currentChar == ')')
@@ -242,7 +272,7 @@ namespace VSharp
         private Token ReadIdentifierOrKeyword()
         {
             int start = _position;
-            while (_position < _input.Length && (char.IsLetter(_input[_position]) || _input[_position] == '_'))
+            while (_position < _input.Length && (char.IsLetter(_input[_position]) || char.IsNumber(_input[_position]) || _input[_position] == '_'))
             {
                 _position++;
             }
