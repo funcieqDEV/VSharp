@@ -7,18 +7,11 @@ namespace VSharp {
     {
         public List<ASTNode> Statements { get; }
 
-        public ProgramNode()
-        {
-            Statements = new List<ASTNode>();
-        }
+        public ProgramNode() => Statements = [];
     }
 
-    public class ExprStatement : ASTNode {
-        public Expression Expression {get;}
-
-        public ExprStatement(Expression expr) {
-            Expression = expr;
-        }
+    public class ExprStatement(Expression expr) : ASTNode {
+        public readonly Expression Expression= expr;
     }
 
     public class Return : ASTNode
@@ -41,8 +34,14 @@ namespace VSharp {
 
         public ArgNode()
         {
-            Names = new List<string>();
+            Names = [];
         }
+    }
+
+    public class ImportStatement(Expression path, string? name) : ASTNode
+    {
+        public readonly Expression Path = path;
+        public readonly string? Name = name;
     }
 
     public class TypeStatement : ASTNode 

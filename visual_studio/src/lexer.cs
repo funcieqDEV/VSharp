@@ -21,7 +21,9 @@ namespace VSharp
         KeywordTrue,
         KeywordFalse,
         KeywordType,
+        KeywordImport,
         KeywordIs,
+        KeywordAs,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -69,10 +71,10 @@ namespace VSharp
     }
 
 
-    public class Lexer
+    public class Lexer(string input)
     {
-        private readonly string _input;
-        private int _position;
+        private readonly string _input = input;
+        private int _position = 0;
         private static readonly Dictionary<string, TokenType> Keywords = new()
         {
             { "set", TokenType.KeywordSet },
@@ -91,13 +93,9 @@ namespace VSharp
             { "false", TokenType.KeywordFalse },
             { "type", TokenType.KeywordType },
             { "is", TokenType.KeywordIs },
+            { "as", TokenType.KeywordAs },
+            { "import", TokenType.KeywordAs },
         };
-
-        public Lexer(string input)
-        {
-            _input = input;
-            _position = 0;
-        }
 
         public List<Token> Tokenize()
         {

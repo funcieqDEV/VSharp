@@ -5,7 +5,7 @@ namespace VSharp
 {
     static class StdLibFactory 
     {
-        public static Variables StdLib(Interpreter interpreter)
+        public static IVariables StdLib(Interpreter interpreter)
         {
             Variables vars = new Variables();
 
