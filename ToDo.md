@@ -3,7 +3,7 @@
 > * ~import library~
 > * gui support 
 > * code editor for V#
-> * list
+> * ~list~
 > * structs
 > * classes
 > * gui support
