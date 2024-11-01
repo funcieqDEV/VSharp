@@ -11,7 +11,7 @@ namespace VSharp {
     }
 
     public class ExprStatement(Expression expr) : ASTNode {
-        public readonly Expression Expression= expr;
+        public readonly Expression Expression = expr;
     }
 
     public class Return : ASTNode
@@ -26,7 +26,7 @@ namespace VSharp {
     }
 
     public class Continue : ASTNode
-    {}
+    { }
 
     public class ArgNode : ASTNode
     {
@@ -36,6 +36,12 @@ namespace VSharp {
         {
             Names = [];
         }
+    }
+
+    public class LibStatement(Expression path, string name) : ASTNode 
+    {
+        public readonly Expression path = path;
+        public readonly string name = name;
     }
 
     public class ImportStatement(Expression path, string? name) : ASTNode
