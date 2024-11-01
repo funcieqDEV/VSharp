@@ -25,6 +25,7 @@ namespace VSharp
             return current.Type switch
             {
                 TokenType.KeywordSet => ParseSetStatement(),
+                TokenType.Identifier => ParseAssignmentOrExpression(),
                 TokenType.KeywordWhile => ParseWhileStatement(),
                 TokenType.KeywordFunc => ParseFuncStatement(),
                 TokenType.KeywordFor => ParseForLoop(),
@@ -33,9 +34,41 @@ namespace VSharp
                 TokenType.KeywordContinue => ParseContinue(),
                 TokenType.KeywordType => ParseTypeStatement(),
                 TokenType.KeywordImport => ParseImport(),
-                _ => new ExprStatement(ParseExpression()),//allow for expressions to be statements in this case:
-                                                          //if statements and function calls are expresions
+                TokenType.KeywordLib => ParseLib(),
+                _ => new ExprStatement(ParseExpression()),
             };
+        }
+
+        private ASTNode ParseAssignmentOrExpression()
+        {
+            int startPosition = _position;
+            Expression leftSide = ParseExpression();
+
+            if (Peek().Type == TokenType.Assignment)
+            {
+                
+                _position = startPosition;
+                return ParseSetStatement(false);
+            }
+            else
+            {
+              
+                return new ExprStatement(leftSide);
+            }
+        }
+
+        private LibStatement ParseLib()
+        {
+            Consume(TokenType.KeywordLib, "Expected 'lib' keyword.");
+            var path = ParseExpression();
+            string? name = null;
+            Consume(TokenType.KeywordAs, "Expected 'as' keyword.");
+  
+ 
+             name = Consume(TokenType.Identifier, "Expected identifer").Value;
+            
+
+            return new LibStatement(path, name);
         }
 
         private ImportStatement ParseImport()
@@ -503,9 +536,13 @@ namespace VSharp
             return new BlockNode(statements);
         }
 
-        private ASTNode ParseSetStatement()
+        private ASTNode ParseSetStatement(bool con = true)
         {
-            Consume(TokenType.KeywordSet, "Expected 'set' keyword.");
+            if (con)
+            {
+                Consume(TokenType.KeywordSet, "Expected 'set' keyword.");
+            }
+            
             Expression assignee = ParseExpression();
             Consume(TokenType.Assignment, "Expected '=' after variable name.");
             Expression expression = ParseExpression();
@@ -521,6 +558,7 @@ namespace VSharp
 
         private Expression ParseExpression()
         {
+
             return ParseTerm();
         }
 
@@ -651,7 +689,7 @@ namespace VSharp
                     return new ConstInt { Value = int.Parse(current.Value)};
                 case TokenType.FloatLiteral:
                     NextToken();
-                    return new ConstDouble { Value = double.Parse(current.Value) };
+                    return new ConstDouble { Value = double.Parse(current.Value.Replace('.', ',')) };
                 case TokenType.StringLiteral:
                     NextToken();
                     return new ConstString { Value = current.Value };
@@ -706,7 +744,7 @@ namespace VSharp
                 return NextToken();
             }
 
-            throw new Exception(errorMessage);
+            throw new Exception(errorMessage + " got "+Peek().Type);
         }
 
         private Token Peek()
