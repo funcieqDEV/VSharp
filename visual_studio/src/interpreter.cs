@@ -333,7 +333,7 @@ namespace VSharp
     {
         private IVariables? _parent;
 
-        private Dictionary<string, object?> _variables;
+        public Dictionary<string, object?> _variables;
 
         public Variables() 
         {
@@ -470,15 +470,133 @@ namespace VSharp
                 case ImportStatement importStmt:
                     ExecuteImportStatement(importStmt, variables);
                     break;
+                case LibStatement libStmt:
+                    ExecuteLibStatement(libStmt, variables);
+                    break;
                 default:
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
         }
 
+        void ExecuteLibStatement(LibStatement stmt, IVariables vars)
+        {
+            string importPath = EvaluateExpression(stmt.path, vars) as string ?? throw new Exception("Expected string path");
+
+            // Load the assembly from the specified path
+            Assembly assembly = Assembly.LoadFrom(importPath);
+
+            VSharpObject libraryExports = new VSharpObject { Entries = [] };
+
+            foreach (Type type in assembly.GetExportedTypes())
+            {
+          
+                if (type.IsAbstract && type.IsSealed)
+                {
+                    foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                    {
+                        libraryExports.Entries[method.Name] = NativeFunc.FromClosure(args =>
+                        {
+                            var parameters = method.GetParameters();
+                            if (args.Count != parameters.Length)
+                            {
+                                throw new Exception($"Method {method.Name} expects {parameters.Length} parameters but got {args.Count}");
+                            }
+
+                     
+                            object?[] convertedArgs = new object[parameters.Length];
+                            for (int i = 0; i < parameters.Length; i++)
+                            {
+                                if (args[i] == null && !parameters[i].ParameterType.IsClass)
+                                {
+                                    throw new Exception($"Cannot pass null to parameter of type {parameters[i].ParameterType}");
+                                }
+
+                                try
+                                {
+                                    convertedArgs[i] = args[i] == null ? null :
+                                        Convert.ChangeType(args[i], parameters[i].ParameterType);
+                                }
+                                catch (Exception)
+                                {
+                                    throw new Exception($"Cannot convert argument {args[i]} to type {parameters[i].ParameterType}");
+                                }
+                            }
+
+                            return method.Invoke(null, convertedArgs);
+                        });
+                    }
+                }
+                else
+                {
+                    var constructor = type.GetConstructor(Type.EmptyTypes);
+                    if (constructor != null)
+                    {
+                        var instance = constructor.Invoke(null);
+                        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+
+                        VSharpObject methodsObj = new VSharpObject { Entries = [] };
+                        foreach (var method in methods)
+                        {
+                            methodsObj.Entries[method.Name] = NativeFunc.FromClosure(args =>
+                            {
+                                var parameters = method.GetParameters();
+                                if (args.Count != parameters.Length)
+                                {
+                                    throw new Exception($"Method {method.Name} expects {parameters.Length} parameters but got {args.Count}");
+                                }
+
+                             
+                                object?[] convertedArgs = new object[parameters.Length];
+                                for (int i = 0; i < parameters.Length; i++)
+                                {
+                                    if (args[i] == null && !parameters[i].ParameterType.IsClass)
+                                    {
+                                        throw new Exception($"Cannot pass null to parameter of type {parameters[i].ParameterType}");
+                                    }
+
+                                    try
+                                    {
+                                        convertedArgs[i] = args[i] == null ? null :
+                                            Convert.ChangeType(args[i], parameters[i].ParameterType);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        throw new Exception($"Cannot convert argument {args[i]} to type {parameters[i].ParameterType}");
+                                    }
+                                }
+
+                                return method.Invoke(instance, convertedArgs);
+                            });
+                        }
+                        libraryExports.Entries[type.Name] = methodsObj;
+                    }
+                }
+            }
+
+            // Set the library exports in the variables with the specified name or in the current scope
+            if (stmt.name != null)
+            {
+                vars.SetVar(stmt.name, libraryExports);
+            }
+            else
+            {
+                foreach (var entry in libraryExports.Entries)
+                {
+                    vars.SetVar(entry.Key.ToString(), entry.Value);
+                }
+            }
+        }
+
         void ExecuteImportStatement(ImportStatement stmt, IVariables variables)
         {
-           string importPath = EvaluateExpression(stmt.Path, variables) as string ?? throw new Exception("Expected string path");
+            string importPath = EvaluateExpression(stmt.Path, variables) as string ?? throw new Exception("Expected string path");
+
+            if (!Path.IsPathRooted(importPath))
+            {
+                string currentDirectory = Path.GetDirectoryName(Program.Path) ?? throw new Exception("Program path is not valid");
+                importPath = Path.Combine(currentDirectory, importPath);
+            }
 
             string code = File.ReadAllText(importPath);
             Lexer tokenizer = new(code);
@@ -486,21 +604,41 @@ namespace VSharp
             Parser parser = new(tokens);
             ProgramNode program = parser.Parse();
 
-            IVariables scope;
+            // Create new scope with stdlib
+            IVariables importScope = StdLibFactory.StdLib(this);
+
+            // If name is provided, create a new object to hold the exports
             if (stmt.Name != null)
             {
-                scope = new VSharpObject { Entries = [] };
-                variables.SetVar(stmt.Name, scope);
-            } else
+                var exportScope = new VSharpObject { Entries = [] };
+                variables.SetVar(stmt.Name, exportScope);
+                // Make the export scope inherit from stdlib scope
+                importScope = new Variables(importScope) { };
+            }
+            else
             {
-                scope = variables;
+                // If no name provided, make the current scope inherit from stdlib scope
+                importScope = new Variables(importScope) { };
             }
 
             foreach (var statement in program.Statements)
             {
-                ExecuteStatement(statement, scope);
+                ExecuteStatement(statement, importScope);
+            }
+
+            // If no name was provided, copy all definitions to the parent scope
+            if (stmt.Name == null)
+            {
+                if (importScope is Variables vars)
+                {
+                    foreach (var entry in vars._variables)
+                    {
+                        variables.SetVar(entry.Key, entry.Value);
+                    }
+                }
             }
         }
+
 
         void ExecuteTypeStatement(TypeStatement ts, IVariables variables)
         {
@@ -716,17 +854,8 @@ namespace VSharp
 
         static string SnakeToPascal(string snakeCaseString)
         {
-            // Split the snake case string by underscores
-            string[] words = snakeCaseString.Split('_');
-            
-            // Convert each word to Pascal case (capitalize first letter)
-            for (int i = 0; i < words.Length; i++)
-            {
-                words[i] = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(words[i]);
-            }
-            
-            // Join the words back together into a single string
-            return string.Join("", words);
+
+            return snakeCaseString;
         }
 
 
