@@ -8,6 +8,7 @@ namespace VSharp
 
     public enum TokenType
     {
+        KeywordLib,
         KeywordSet,
         KeywordIf,
         KeywordElse,
@@ -94,7 +95,8 @@ namespace VSharp
             { "type", TokenType.KeywordType },
             { "is", TokenType.KeywordIs },
             { "as", TokenType.KeywordAs },
-            { "import", TokenType.KeywordAs },
+            { "import", TokenType.KeywordImport },
+            { "extern", TokenType.KeywordLib },
         };
 
         public List<Token> Tokenize()
@@ -181,6 +183,11 @@ namespace VSharp
                         }
                         continue;
                     }
+                    else
+                    {
+                        tokens.Add(new Token(TokenType.Operator, "/"));
+                    }
+                    
                 }
                 else if (currentChar == '>')
                 {
