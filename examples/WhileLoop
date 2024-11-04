@@ -1,6 +1,6 @@
 set i = 0
 
 while(i<100){
-  IO.Println("i: "+i)
+  io.println("i: "+i)
   set i = i+1
 }
