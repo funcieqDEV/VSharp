@@ -1,10 +1,10 @@
 set age = 0
 
-IO.Println("How old are you?")
-set age = Convert.ToInt(IO.Input())
+io.println("How old are you?")
+set age = Convert.ToInt(io.input())
 if(age >= 18){
-  IO.Println("nice you are an adult")
+  io.println("nice you are an adult")
 }
   else {
-    IO.Println("you are not an adult")
+    io.println("you are not an adult")
   }
