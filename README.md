@@ -34,6 +34,7 @@ at this point you can already use V#
 - the file editor can be a regular notepad
 - administrator permissions
 - Console
+- git (for linux users only)
 ### Special thanks
 [Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
 
@@ -42,8 +43,17 @@ at this point you can already use V#
 after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio
 
 - **Build the project**
+ **Windows**<br>
 once you have .net 8.0, go to the directory where the project files are located and use `dotnet build`
 
+ **Linux**<br>
+ - install .net 8.0<br>
+ - clone repo
+ ```bash
+ git clone https://github.com/funcieqDEV/VSharp
+ cd VSharp
+ dotnet build
+ ```
 
 
 
