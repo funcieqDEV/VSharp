@@ -43,10 +43,12 @@ at this point you can already use V#
 after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio
 
 - **Build the project**<br>
- **Windows**<br>
-once you have .net 8.0, go to the directory where the project files are located and use `dotnet build`
 
- **Linux**<br>
+**Windows**<br>
+once you have .net 8.0, go to the directory where the project files are located and use `dotnet build`
+<br>
+
+**Linux**<br>
  - install .net 8.0<br>
  - clone repo
  ```bash
