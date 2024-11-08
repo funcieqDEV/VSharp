@@ -54,6 +54,7 @@ once you have .net 8.0, go to the directory where the project files are located 
  ```bash
  git clone https://github.com/funcieqDEV/VSharp
  cd VSharp
+ cd visual_studio
  dotnet build
  ```
 
