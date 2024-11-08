@@ -29,12 +29,69 @@ characteristics:
 
 at this point you can already use V#
 
-### Requirements 
-- **.net 8.0** install.bat will download the installer file for you 
-- the file editor can be a regular notepad
-- administrator permissions
-- Console
-- git (for linux users only)
+## System Requirements
+
+### Minimum Requirements
+- **Processor**: 1 GHz or faster
+- **RAM**: 2 GB
+- **Disk Space**: 100 MB
+
+### Supported Operating Systems
+- **Windows**
+  - Windows 10 (64-bit)
+  - Windows 11
+  - Windows Server 2019+
+
+- **Linux**
+  - Ubuntu 20.04 LTS or later
+  - Debian 10 or later
+  - Fedora 34 or later
+  - CentOS 8 or later
+
+- **macOS**
+  - macOS 10.15 (Catalina) or later
+  - macOS 11 Big Sur
+  - macOS 12 Monterey
+  - macOS 13 Ventura
+
+### Required Software
+- **.NET SDK**: Version 8.0 or later
+  - [Download .NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+
+### Recommended Requirements
+- **Processor**: 2 GHz or faster, multi-core
+- **RAM**: 4 GB or more
+- **Disk Space**: 500 MB
+- Stable internet connection (for library imports, updates)
+
+### Hardware Requirements for Advanced Applications
+- For computationally intensive projects:
+  - Processor: 4 cores, 3 GHz
+  - RAM: 8 GB or more
+  - SSD for better performance
+
+### Development Environment Recommendations
+- Recommended Code Editors:
+  - Visual Studio Code
+  - Visual Studio
+  - JetBrains Rider
+  - Sublime Text
+  - Atom
+
+### Compatibility
+- Full x64 architecture support
+- Partial ARM64 support (experimental)
+
+### Network Requirements
+- Minimum bandwidth: 1 Mbps
+- Open port 443 for updates and library imports
+
+### Performance Considerations
+- Interpreter performance may vary based on:
+  - System specifications
+  - Complexity of the script
+  - Number of external library imports
+
 ### Special thanks
 [Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
 
