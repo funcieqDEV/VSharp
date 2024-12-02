@@ -1,3 +1,105 @@
-func main(){
+extern "sbv.dll" as sbv
 
+en_texture = sbv.texture("C:\Users\3TP\Desktop\gra\enemy.png")
+
+func main() {
+    obstacles = []
+
+    i = 0
+    while(i<5){
+
+        
+        e_sprite = sbv.sprite(en_texture,sbv.vector2f(Math.RandInt(50,700),Math.RandInt(50,550)))
+        e_sprite.Scale = sbv.vector2f(0.35,0.35)
+        obstacles.Add(e_sprite)
+        i = i +1
+    }
+
+    x = 100.0
+    y = 100.0
+
+    speed = 400.0
+    window = sbv.createWindow(800,600,"epic game")
+
+    bgtexture = sbv.texture("C:\\Users\\3TP\\Desktop\\gra\\assets\\tlo.png")
+    bgsprite = sbv.sprite(bgtexture, sbv.vector2f(0,0))
+
+    texture = sbv.texture("C:\Users\3TP\Desktop\gra\wladek.jpg")
+    dog = sbv.sprite(texture, sbv.vector2f(250,250))
+    dog.Scale = sbv.vector2f(0.2,0.2)
+
+    c = sbv.clock()
+
+    fpsClock = sbv.clock()
+    frames = 0
+    
+    font = sbv.font("C:\\Users\\3TP\\Desktop\\gra\\arial.ttf")
+    fpsText = sbv.text("FPS: 0", font, 24)
+    
+    while(window.IsOpen) {
+        window.DispatchEvents()
+        delta = c.getDeltaTime()
+        frames = frames + 1 
+
+        if (fpsClock.elapsedTime().asSeconds() >= 1.0) {
+            fpsText.DisplayedString = "FPS: " + frames
+            frames = 0
+            fpsClock.restart()
+        }
+
+        if(sbv.isKeyPressed("a")) {
+            x = x - delta * speed
+        }
+        if(sbv.isKeyPressed("d")) {
+            x = x + delta * speed
+        }
+        if(sbv.isKeyPressed("w")) {
+            y = y - delta * speed
+        }
+        if(sbv.isKeyPressed("s")) {
+            y = y + delta * speed
+        }
+        if(sbv.isKeyPressed("left")) {
+            x = x - delta * speed
+        }
+        if(sbv.isKeyPressed("right")) {
+            x = x + delta * speed
+        }
+        if(sbv.isKeyPressed("up")) {
+            y = y - delta * speed
+        }
+        if(sbv.isKeyPressed("down")) {
+            y = y + delta * speed
+        }
+        dog.Position = sbv.vector2f(x, y)
+
+        collisionDetected = false
+        for(ob in obstacles) {
+            if (dog.GetGlobalBounds().Intersects(ob.GetGlobalBounds())) {
+                io.println("dieeeeee!!")
+                dog.Color = sbv.rgba(255,0,0,128)  
+                collisionDetected = true
+            }
+        }
+
+   
+        if (collisionDetected ) {
+            
+        }else {
+            dog.Color = sbv.rgba(255, 255, 255, 255)  
+        }
+
+        window.Clear(sbv.rgb(34, 89, 236))
+        window.Draw(bgsprite)
+        window.Draw(dog)
+
+        for(ob in obstacles) {
+            window.Draw(ob)
+        }
+
+        window.Draw(fpsText)
+        window.Display()
+    }
 }
+
+main()
