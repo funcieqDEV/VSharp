@@ -1,6 +1,6 @@
 extern "sbv.dll" as sbv
 
-en_texture = sbv.texture("C:\Users\3TP\Desktop\gra\enemy.png")
+en_texture = sbv.texture("enemy.png")
 
 func main() {
     obstacles = []
@@ -21,10 +21,10 @@ func main() {
     speed = 400.0
     window = sbv.createWindow(800,600,"epic game")
 
-    bgtexture = sbv.texture("C:\\Users\\3TP\\Desktop\\gra\\assets\\tlo.png")
+    bgtexture = sbv.texture("tlo.png")
     bgsprite = sbv.sprite(bgtexture, sbv.vector2f(0,0))
 
-    texture = sbv.texture("C:\Users\3TP\Desktop\gra\wladek.jpg")
+    texture = sbv.texture("wladek.jpg")
     dog = sbv.sprite(texture, sbv.vector2f(250,250))
     dog.Scale = sbv.vector2f(0.2,0.2)
 
@@ -33,7 +33,7 @@ func main() {
     fpsClock = sbv.clock()
     frames = 0
     
-    font = sbv.font("C:\\Users\\3TP\\Desktop\\gra\\arial.ttf")
+    font = sbv.font("arial.ttf")
     fpsText = sbv.text("FPS: 0", font, 24)
     
     while(window.IsOpen) {
