@@ -7,7 +7,7 @@ using VSharp;
 
 public class Program
 {
-    public static string Path = String.Empty;
+    public static string _Path = String.Empty;
     public static void Main(String[] args)
     {
         string input = String.Empty;
@@ -24,14 +24,17 @@ public class Program
             {
                 try
                 {
+                    string exedir = Environment.CurrentDirectory;
+                    Environment.CurrentDirectory = new FileInfo(args[1]).Directory!.FullName;
                     input = File.ReadAllText(args[1]);
-                    Program.Path = args[1];
+                    Program._Path = args[1];
                     Lexer lexer = new Lexer(input);
                     List<Token> tokens = lexer.Tokenize();
 
                     Parser parser = new Parser(tokens);
                     ProgramNode program = parser.Parse();
                     interpreter.Interpret(program);
+                    Environment.CurrentDirectory = exedir;
                 }
                 catch (Exception e)
                 {

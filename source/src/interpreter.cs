@@ -594,7 +594,7 @@ namespace VSharp
 
             if (!Path.IsPathRooted(importPath))
             {
-                string currentDirectory = Path.GetDirectoryName(Program.Path) ?? throw new Exception("Program path is not valid");
+                string currentDirectory = Path.GetDirectoryName(Program._Path) ?? throw new Exception("Program path is not valid");
                 importPath = Path.Combine(currentDirectory, importPath);
             }
 
