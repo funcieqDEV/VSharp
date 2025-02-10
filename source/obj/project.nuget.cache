@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "8sx6Mkmn2qE=",
+  "dgSpecHash": "0DDvcZPwkIQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\danie\\VSharp\\visual_studio\\V_Sharp.csproj",
+  "projectFilePath": "C:\\Users\\HP\\Downloads\\VSharp-main\\VSharp-main\\source\\vsharp.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\danie\\.nuget\\packages\\csfml\\2.6.1\\csfml.2.6.1.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\sfml.audio\\2.6.0\\sfml.audio.2.6.0.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\sfml.graphics\\2.6.0\\sfml.graphics.2.6.0.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\sfml.net\\2.6.0\\sfml.net.2.6.0.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\sfml.system\\2.6.0\\sfml.system.2.6.0.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\sfml.window\\2.6.0\\sfml.window.2.6.0.nupkg.sha512"
+    "C:\\Users\\HP\\.nuget\\packages\\microsoft.net.sdk.compilers.toolset\\9.0.100\\microsoft.net.sdk.compilers.toolset.9.0.100.nupkg.sha512"
   ],
   "logs": []
 }

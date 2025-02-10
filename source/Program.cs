@@ -1,63 +1,129 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using VSharp;
 
 public class Program
 {
-    public static string _Path = String.Empty;
-    public static void Main(String[] args)
+    public static string _Path = string.Empty;
+    private const string Version = "0.4.0 LTS";
+
+    public static void Main(string[] args)
     {
-        string input = String.Empty;
-       
-        string version = "0.3.5";
-        Interpreter interpreter = new Interpreter();
-        if (args.Length > 0)
+        if (args.Length == 0)
         {
-            if (args[0] == "--v")
-            {
-                Console.WriteLine("VSharp - " + version);
-            }
-            else if (args[0] == "run")
-            {
-                try
-                {
-                    string exedir = Environment.CurrentDirectory;
-                    Environment.CurrentDirectory = new FileInfo(args[1]).Directory!.FullName;
-                    input = File.ReadAllText(args[1]);
-                    Program._Path = args[1];
-                    Lexer lexer = new Lexer(input);
-                    List<Token> tokens = lexer.Tokenize();
-
-                    Parser parser = new Parser(tokens);
-                    ProgramNode program = parser.Parse();
-                    interpreter.Interpret(program);
-                    Environment.CurrentDirectory = exedir;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("ERROR: " + e);
-                }
-            }
-            else
-            {
-                Console.WriteLine("usage: ");
-                Console.WriteLine(" --v             display your V# version");
-                Console.WriteLine(" run             run the project");
-            }
-        }
-        else
-        {
-            Console.WriteLine("usage: ");
-            Console.WriteLine(" --v             display your V# version");
-            Console.WriteLine(" run             run the project");
+            PrintLogo();
+            PrintUsage();
+            return;
         }
 
+        switch (args[0])
+        {
+            case "--version":
+            case "-v":
+                Console.WriteLine($"VSharp version {Version}");
+                break;
 
+            case "run":
+                if (args.Length < 2)
+                {
+                    Console.WriteLine("ERROR: No file specified to run.");
+                    return;
+                }
+                RunFile(args[1]);
+                break;
 
+            case "--help":
+            case "-h":
+                PrintLogo();
+                PrintUsage();
+                break;
 
+            case "info":
+                PrintInfo();
+                break;
+
+            case "new":
+                if (args.Length < 2)
+                {
+                    Console.WriteLine("ERROR: No project name specified.");
+                    return;
+                }
+                CreateNewProject(args[1]);
+                break;
+            default:
+                Console.WriteLine($"ERROR: Unknown command '{args[0]}'\n");
+                PrintUsage();
+                break;
+        }
+    }
+
+    private static void PrintLogo()
+    {
+        Console.WriteLine("GitHub: https://github.com/funcieqDEV/VSharp");
+        Console.WriteLine("YouTube: www.youtube.com/@funcieq_");
+        Console.WriteLine();
+    }
+
+    private static void PrintUsage()
+    {
+        Console.WriteLine("Usage:");
+        Console.WriteLine("  --version, -v     Display VSharp version");
+        Console.WriteLine("  run <file>        Run the specified script file");
+        Console.WriteLine("  new <name>        Create a new VSharp project");
+        Console.WriteLine("  --help, -h        Show this help message");
+        Console.WriteLine("  info              Display information about VSharp");
+    }
+
+    private static void PrintInfo()
+    {
+        Console.WriteLine("VSharp - A simple scripting language interpreter.");
+        Console.WriteLine("Version: " + Version);
+    }
+
+    private static void CreateNewProject(string projectName)
+    {
+        string projectPath = Path.Combine(Directory.GetCurrentDirectory(), projectName);
+        if (Directory.Exists(projectPath))
+        {
+            Console.WriteLine($"ERROR: Project '{projectName}' already exists.");
+            return;
+        }
+        Directory.CreateDirectory(projectPath);
+        File.WriteAllText(Path.Combine(projectPath, "main.vshrp"), "// Entry point for VSharp project");
+        Console.WriteLine($"New VSharp project '{projectName}' created successfully.");
+    }
+
+    private static void RunFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine($"ERROR: File '{filePath}' not found.");
+            return;
+        }
+
+        try
+        {
+            string initialDir = Environment.CurrentDirectory;
+            Environment.CurrentDirectory = new FileInfo(filePath).Directory!.FullName;
+
+            string input = File.ReadAllText(filePath);
+            _Path = filePath;
+
+            Lexer lexer = new Lexer(input);
+            List<Token> tokens = lexer.Tokenize();
+
+            Parser parser = new Parser(tokens);
+            ProgramNode program = parser.Parse();
+
+            Interpreter interpreter = new Interpreter();
+            interpreter.Interpret(program);
+
+            Environment.CurrentDirectory = initialDir;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERROR: {e.Message}");
+        }
     }
 }
-

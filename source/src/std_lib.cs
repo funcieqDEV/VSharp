@@ -91,7 +91,6 @@ namespace VSharpLib
             return new RangeObj(lower, upper);
         }
     }
-
     public class RangeObj : IEnumerable<object>, IEnumerator<object> {
         public int Lower { get; }
         public int Upper { get; }

@@ -4,18 +4,18 @@ namespace VSharpLib
     using VSharp;
 
     [Module]
-    class Convert
+    class conv
     {
         /// <summary>
         /// Converts an object to an integer, if possible.
         /// </summary>
         /// <param name="num">The object to convert.</param>
         /// <returns>The integer value of the object, or null if conversion is not possible.</returns>
-        public int? ToInt(object? num)
+        public int? toInt(object? num)
         {
             try
             {
-                return System.Convert.ToInt32(num);
+                return Convert.ToInt32(num);
             }
             catch
             {
@@ -28,9 +28,9 @@ namespace VSharpLib
         /// </summary>
         /// <param name="s">The object to convert.</param>
         /// <returns>The string representation of the object, or null if conversion is not possible.</returns>
-        public string? ToString(object? s)
+        public string? toString(object? s)
         {
-            return System.Convert.ToString(s);
+            return Convert.ToString(s);
         }
 
         /// <summary>
@@ -38,11 +38,11 @@ namespace VSharpLib
         /// </summary>
         /// <param name="num">The object to convert.</param>
         /// <returns>The float value of the object, or null if conversion is not possible.</returns>
-        public float? ToFloat(object? num)
+        public float? toFloat(object? num)
         {
             try
             {
-                return System.Convert.ToSingle(num);
+                return Convert.ToSingle(num);
             }
             catch
             {
@@ -55,11 +55,11 @@ namespace VSharpLib
         /// </summary>
         /// <param name="value">The object to convert.</param>
         /// <returns>The boolean value of the object, or null if conversion is not possible.</returns>
-        public bool? ToBool(object? value)
+        public bool? toBool(object? value)
         {
             try
             {
-                return System.Convert.ToBoolean(value);
+                return Convert.ToBoolean(value);
             }
             catch
             {
@@ -72,7 +72,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="num">The object to convert.</param>
         /// <returns>The double value of the object, or null if conversion is not possible.</returns>
-        public double? ToDouble(object? num)
+        public double? toDouble(object? num)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="num">The object to convert.</param>
         /// <returns>The decimal value of the object, or null if conversion is not possible.</returns>
-        public decimal? ToDecimal(object? num)
+        public decimal? toDecimal(object? num)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="value">The object to convert.</param>
         /// <returns>The char representation of the object, or null if conversion is not possible.</returns>
-        public char? ToChar(object? value)
+        public char? toChar(object? value)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="value">The object to convert.</param>
         /// <returns>The DateTime representation of the object, or null if conversion is not possible.</returns>
-        public DateTime? ToDateTime(object? value)
+        public DateTime? toDateTime(object? value)
         {
             try
             {

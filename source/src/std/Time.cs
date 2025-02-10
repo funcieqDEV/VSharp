@@ -5,12 +5,12 @@ namespace VSharpLib
     using VSharp;
 
     [Module]
-    class Time
+    class time
     {
         /// <summary>
         /// Returns the current date and time.
         /// </summary>
-        public DateTime Now()
+        public DateTime now()
         {
             return DateTime.Now;
         }
@@ -18,7 +18,7 @@ namespace VSharpLib
         /// <summary>
         /// Returns today's date without the time component.
         /// </summary>
-        public DateTime Date()
+        public DateTime date()
         {
             return DateTime.Today;
         }
@@ -26,7 +26,7 @@ namespace VSharpLib
         /// <summary>
         /// Returns the current date and time with millisecond precision.
         /// </summary>
-        public DateTime NowWithMilliseconds()
+        public DateTime wowWithMilliseconds()
         {
             return DateTime.Now;
         }
@@ -37,7 +37,7 @@ namespace VSharpLib
         /// <param name="start">The start date and time.</param>
         /// <param name="end">The end date and time.</param>
         /// <returns>A TimeSpan representing the time difference between the two dates.</returns>
-        public TimeSpan Difference(DateTime start, DateTime end)
+        public TimeSpan difference(DateTime start, DateTime end)
         {
             return end - start;
         }
@@ -47,7 +47,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="dateTime">The date and time to convert.</param>
         /// <returns>A string representing the date and time in ISO 8601 format.</returns>
-        public string ToIso8601(DateTime dateTime)
+        public string toIso8601(DateTime dateTime)
         {
             return dateTime.ToString("o", CultureInfo.InvariantCulture);
         }
@@ -57,7 +57,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="iso8601String">The ISO 8601 formatted date string to parse.</param>
         /// <returns>The parsed DateTime object.</returns>
-        public DateTime ParseIso8601(string iso8601String)
+        public DateTime parseIso8601(string iso8601String)
         {
             return DateTime.Parse(iso8601String, null, DateTimeStyles.RoundtripKind);
         }
@@ -79,7 +79,7 @@ namespace VSharpLib
         /// <param name="date">The starting date.</param>
         /// <param name="hours">The number of hours to add.</param>
         /// <returns>A DateTime representing the date plus the specified number of hours.</returns>
-        public DateTime AddHours(DateTime date, int hours)
+        public DateTime addHours(DateTime date, int hours)
         {
             return date.AddHours(hours);
         }
@@ -90,7 +90,7 @@ namespace VSharpLib
         /// <param name="date">The starting date.</param>
         /// <param name="minutes">The number of minutes to add.</param>
         /// <returns>A DateTime representing the date plus the specified number of minutes.</returns>
-        public DateTime AddMinutes(DateTime date, int minutes)
+        public DateTime addMinutes(DateTime date, int minutes)
         {
             return date.AddMinutes(minutes);
         }

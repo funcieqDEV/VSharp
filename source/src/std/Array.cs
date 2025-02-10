@@ -5,12 +5,12 @@ namespace VSharpLib
     using VSharp;
 
     [Module]
-    public class Array
+    public class array
     {
         /// <summary>
         /// Returns the number of elements in the list.
         /// </summary>
-        public int Length(List<object> list)
+        public int length(List<object> list)
         {
             return list.Count;
         }
@@ -18,7 +18,7 @@ namespace VSharpLib
         /// <summary>
         /// Checks if the list is empty.
         /// </summary>
-        public bool IsEmpty(List<object> list)
+        public bool isEmpty(List<object> list)
         {
             return list.Count == 0;
         }
@@ -29,7 +29,7 @@ namespace VSharpLib
         /// <param name="list">The list to retrieve the element from.</param>
         /// <param name="index">The index of the element.</param>
         /// <returns>The element at the specified index.</returns>
-        public object GetElementAt(List<object> list, int index)
+        public object getElementAt(List<object> list, int index)
         {
             if (index < 0 || index >= list.Count)
             {
@@ -41,7 +41,7 @@ namespace VSharpLib
         /// <summary>
         /// Adds an element to the end of the list.
         /// </summary>
-        public void AddElement(List<object> list, object element)
+        public void addElement(List<object> list, object element)
         {
             list.Add(element);
         }
@@ -51,7 +51,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="list">The list from which to remove the element.</param>
         /// <param name="index">The index of the element to remove.</param>
-        public void RemoveElementAt(List<object> list, int index)
+        public void removeElementAt(List<object> list, int index)
         {
             if (index < 0 || index >= list.Count)
             {
@@ -63,7 +63,7 @@ namespace VSharpLib
         /// <summary>
         /// Clears all elements from the list.
         /// </summary>
-        public void Clear(List<object> list)
+        public void clear(List<object> list)
         {
             list.Clear();
         }
@@ -71,7 +71,7 @@ namespace VSharpLib
         /// <summary>
         /// Checks if the list contains a specific element.
         /// </summary>
-        public bool Contains(List<object> list, object element)
+        public bool contains(List<object> list, object element)
         {
             return list.Contains(element);
         }
@@ -79,7 +79,7 @@ namespace VSharpLib
         /// <summary>
         /// Returns the index of the specified element in the list, or -1 if not found.
         /// </summary>
-        public int IndexOf(List<object> list, object element)
+        public int indexOf(List<object> list, object element)
         {
             return list.IndexOf(element);
         }
@@ -87,7 +87,7 @@ namespace VSharpLib
         /// <summary>
         /// Returns a sorted copy of the list.
         /// </summary>
-        public List<object> Sort(List<object> list)
+        public List<object> sort(List<object> list)
         {
             List<object> sortedList = new List<object>(list);
             QuickSort(sortedList, 0, sortedList.Count - 1);
@@ -138,7 +138,7 @@ namespace VSharpLib
         /// <summary>
         /// Reverses the order of elements in the list.
         /// </summary>
-        public List<object> Reverse(List<object> list)
+        public List<object> reverse(List<object> list)
         {
             List<object> reversedList = new List<object>(list);
             reversedList.Reverse();
@@ -156,7 +156,7 @@ namespace VSharpLib
         /// <summary>
         /// Returns a slice (sublist) of the list from start index to end index (exclusive).
         /// </summary>
-        public List<object> Slice(List<object> list, int start, int end)
+        public List<object> slice(List<object> list, int start, int end)
         {
             if (start < 0 || end > list.Count || start > end)
             {
@@ -168,7 +168,7 @@ namespace VSharpLib
         /// <summary>
         /// Concatenates two lists into a new list.
         /// </summary>
-        public List<object> Concat(List<object> list1, List<object> list2)
+        public List<object> concat(List<object> list1, List<object> list2)
         {
             List<object> result = new List<object>(list1);
             result.AddRange(list2);
@@ -178,7 +178,7 @@ namespace VSharpLib
         /// <summary>
         /// Removes duplicate elements from the list.
         /// </summary>
-        public List<object> Unique(List<object> list)
+        public List<object> unique(List<object> list)
         {
             HashSet<object> uniqueElements = new HashSet<object>(list);
             return new List<object>(uniqueElements);

@@ -1,3 +1,5 @@
+using vsharp.src.ast;
+
 namespace VSharp
 {
    
@@ -35,8 +37,55 @@ namespace VSharp
                 TokenType.KeywordType => ParseTypeStatement(),
                 TokenType.KeywordImport => ParseImport(),
                 TokenType.KeywordLib => ParseLib(),
+                TokenType.KeywordSwitch => ParseSwitch(),
+                TokenType.KeywordUntil => ParseUntil(),
                 _ => new ExprStatement(ParseExpression()),
             };
+        }
+
+        private UntilNode ParseUntil()
+        {
+
+            Consume(TokenType.KeywordUntil, "");
+            Consume(TokenType.LeftParen, "Expected '('");
+            var condition = ParseLogicalExpression();
+            Consume(TokenType.RightParen, "Expected ')' after condition");
+            var b = ParseBlockNode();
+            return new UntilNode
+            {
+                block = b,
+                condition = condition,
+            };
+        }
+
+        private SwitchNode ParseSwitch()
+        {
+            Consume(TokenType.KeywordSwitch);
+            Consume(TokenType.LeftParen, "Expected '(' after switch.");
+            Expression expression = ParseExpression();
+            Consume(TokenType.RightParen, "Expected ')' after expression");
+            Consume(TokenType.LeftBrace, "Expected '{'");
+            List<(Expression,BlockNode)> _cases = new();
+            BlockNode @default = new();
+
+            while (Peek().Type != TokenType.RightBrace && !IsAtEnd())
+            {
+                if (Peek().Type == TokenType.KeywordCase)
+                {
+                    Consume(TokenType.KeywordCase, "Expected 'case' keyword.");
+                    var Expr = ParseExpression();
+                    _cases.Add((Expr,ParseBlockNode()));
+                }
+                else if (Peek().Type == TokenType.KeywordDefault) {
+                    Consume(TokenType.KeywordDefault, "");
+                    @default = ParseBlockNode();
+                }else
+                {
+                    throw new Exception("Unexpected token type.");
+                }
+            }
+            Consume(TokenType.RightBrace, "Expected '}'");
+            return new SwitchNode(expression,_cases,@default);
         }
 
         private ASTNode ParseAssignmentOrExpression()
@@ -555,10 +604,8 @@ namespace VSharp
             };
         }
 
-
         private Expression ParseExpression()
         {
-
             return ParseTerm();
         }
 
@@ -566,10 +613,10 @@ namespace VSharp
         {
             Expression node = ParseFactor();
 
-            if (Peek().Type == TokenType.Operator && (Peek().Value == "+" || Peek().Value == "-"))
+            while (Peek().Type == TokenType.Operator && (Peek().Value == "+" || Peek().Value == "-"))
             {
                 Token operatorToken = NextToken();
-                Expression right = ParseTerm();
+                Expression right = ParseFactor();
                 node = new BinaryOperationNode(node, operatorToken.Value, right);
             }
 
@@ -578,12 +625,20 @@ namespace VSharp
 
         private Expression ParseFactor()
         {
-            Expression node = ParseCall();
-
-            if (Peek().Type == TokenType.Operator && (Peek().Value == "*" || Peek().Value == "/"))
+            if (Peek().Type == TokenType.Operator && (Peek().Value == "-" || Peek().Value == "+"))
             {
                 Token operatorToken = NextToken();
-                Expression right = ParseFactor();
+                Expression nn = ParsePrimary();
+                ConstInt i = new() { Value = 0 };
+                return new BinaryOperationNode(i, operatorToken.Value, nn);
+            }
+
+            Expression node = ParseCall();
+
+            while (Peek().Type == TokenType.Operator && (Peek().Value == "*" || Peek().Value == "/"))
+            {
+                Token operatorToken = NextToken();
+                Expression right = ParseCall();
                 node = new BinaryOperationNode(node, operatorToken.Value, right);
             }
 
@@ -594,7 +649,6 @@ namespace VSharp
         {
             Expression node = ParsePrimary();
 
-
             while ((Peek().Type == TokenType.LeftParen && allowCalls) || Peek().Type == TokenType.Dot || Peek().Type == TokenType.SquareOpen || Peek().Type == TokenType.KeywordIn || Peek().Type == TokenType.KeywordIs)
             {
                 Token next = Peek();
@@ -602,8 +656,8 @@ namespace VSharp
                 {
                     NextToken();
                     string name = Consume(TokenType.Identifier, "").Value;
-                    node = new PropertyAccess { Parent = node, Name = name};
-                } 
+                    node = new PropertyAccess { Parent = node, Name = name };
+                }
 
                 if (next.Type == TokenType.KeywordIn)
                 {
@@ -625,7 +679,8 @@ namespace VSharp
                     if (node is PropertyAccess n)
                     {
                         node = new MethodCall { Args = args, Name = n.Name, Parent = n.Parent };
-                    } else 
+                    }
+                    else
                     {
                         node = new Invokation { Args = args, Parent = node };
                     }
@@ -638,11 +693,12 @@ namespace VSharp
                     Consume(TokenType.SquareClose, "Expected `]`");
                     node = new Indexing { Parent = node, Index = index };
                 }
-               
             }
 
             return node;
         }
+
+
 
         private List<Expression> ParseCallingArgs()
         {
@@ -737,7 +793,7 @@ namespace VSharp
             return new ConstFunction { Args = args, Body = body, ReturnType = returnType, Generics = generics };
         }
 
-        private Token Consume(TokenType type, string errorMessage)
+        private Token Consume(TokenType type, string errorMessage = "")
         {
             if (Peek().Type == type)
             {

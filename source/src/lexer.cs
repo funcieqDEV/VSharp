@@ -25,6 +25,10 @@ namespace VSharp
         KeywordImport,
         KeywordIs,
         KeywordAs,
+        KeywordDefault,
+        KeywordSwitch,
+        KeywordCase,
+        KeywordUntil,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -97,6 +101,10 @@ namespace VSharp
             { "as", TokenType.KeywordAs },
             { "import", TokenType.KeywordImport },
             { "extern", TokenType.KeywordLib },
+            {"switch",TokenType.KeywordSwitch },
+            {"case",TokenType.KeywordCase },
+            {"default",TokenType.KeywordDefault},
+            {"until",TokenType.KeywordUntil }
         };
 
         public List<Token> Tokenize()
@@ -189,6 +197,20 @@ namespace VSharp
                     }
                     
                 }
+                else if (currentChar == '#')
+                {
+                    _position++;
+                    while (_position < _input.Length && _input[_position] != '#')
+                    {
+                        _position++;
+                    }
+
+                    if (_position < _input.Length && _input[_position] == '#')
+                    {
+                        _position++; 
+                    }
+                }
+
                 else if (currentChar == '>')
                 {
                     if (LookAhead() == '=')

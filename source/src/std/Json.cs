@@ -6,7 +6,7 @@ namespace VSharpLib
     using VSharp;
 
     [Module]
-    class Json
+    class json
     {
         /// <summary>
         /// Parses a JSON string into a dynamic object.
@@ -15,7 +15,7 @@ namespace VSharpLib
         /// <returns>A dynamic object representing the parsed JSON.</returns>
         public object? parse(string content)
         {
-            return ParseElement(JsonDocument.Parse(content).RootElement);
+            return parseElement(JsonDocument.Parse(content).RootElement);
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace VSharpLib
         /// <param name="json">The object to serialize.</param>
         /// <returns>A JSON string representation of the object.</returns>
         /// <exception cref="Exception">Thrown when trying to serialize a null object.</exception>
-        public string ToString(object? json)
+        public string toString(object? json)
         {
             if (json == null)
             {
@@ -38,14 +38,14 @@ namespace VSharpLib
         /// </summary>
         /// <param name="element">The JSON element to parse.</param>
         /// <returns>A dynamic object representing the parsed JSON element.</returns>
-        public static object? ParseElement(JsonElement element)
+        public static object? parseElement(JsonElement element)
         {
             if (element.ValueKind == JsonValueKind.Object)
             {
                 var dict = new Dictionary<object, object?>();
                 foreach (JsonProperty prop in element.EnumerateObject())
                 {
-                    dict[prop.Name] = ParseElement(prop.Value);
+                    dict[prop.Name] = parseElement(prop.Value);
                 }
                 return new VSharpObject { Entries = dict };
             }
@@ -55,7 +55,7 @@ namespace VSharpLib
                 var list = new List<object?>();
                 foreach (JsonElement arrayElement in element.EnumerateArray())
                 {
-                    list.Add(ParseElement(arrayElement));
+                    list.Add(parseElement(arrayElement));
                 }
                 return list;
             }
@@ -84,7 +84,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="json">The JSON object to pretty print.</param>
         /// <returns>A formatted JSON string.</returns>
-        public string PrettyPrint(object? json)
+        public string prettyPrint(object? json)
         {
             if (json == null)
             {
@@ -99,7 +99,7 @@ namespace VSharpLib
         /// <param name="json1">The first JSON object.</param>
         /// <param name="json2">The second JSON object.</param>
         /// <returns>A merged JSON object.</returns>
-        public object Merge(object json1, object json2)
+        public object merge(object json1, object json2)
         {
             // Assuming json1 and json2 are both VSharpObjects
             var dict1 = ((VSharpObject)json1).Entries;
@@ -119,7 +119,7 @@ namespace VSharpLib
         /// <param name="json">The JSON object to check.</param>
         /// <param name="key">The key to search for in the JSON object.</param>
         /// <returns>True if the key exists in the JSON object; otherwise, false.</returns>
-        public bool ContainsKey(object json, string key)
+        public bool containsKey(object json, string key)
         {
             var dict = ((VSharpObject)json).Entries;
             return dict.ContainsKey(key);

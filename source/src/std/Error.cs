@@ -5,13 +5,13 @@ namespace VSharpLib
     using VSharp;
 
     [Module]
-    class Error
+    class error
     {
         /// <summary>
         /// Throws a general exception with the specified reason.
         /// </summary>
         /// <param name="reason">The reason for the exception.</param>
-        public void Throw(object? reason)
+        public void throwError(object? reason)
         {
             throw new Exception(reason?.ToString());
         }
@@ -21,7 +21,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="obj">The object to check for null.</param>
         /// <param name="message">The exception message if the object is null.</param>
-        public void ThrowIfNull(object? obj, string message = "Object cannot be null.")
+        public void throwIfNull(object? obj, string message = "Object cannot be null.")
         {
             if (obj == null)
             {
@@ -34,7 +34,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="collection">The collection to check for emptiness.</param>
         /// <param name="message">The exception message if the collection is empty.</param>
-        public void ThrowIfEmpty(IEnumerable<object> collection, string message = "Collection cannot be empty.")
+        public void throwIfEmpty(IEnumerable<object> collection, string message = "Collection cannot be empty.")
         {
             if (!collection.GetEnumerator().MoveNext())
             {
@@ -47,7 +47,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="exceptionName">The type of exception to throw (e.g., ArgumentException).</param>
         /// <param name="message">The message for the exception.</param>
-        public void ThrowCustom(string exceptionName, string message)
+        public void throwCustom(string exceptionName, string message)
         {
             switch (exceptionName)
             {
@@ -67,7 +67,7 @@ namespace VSharpLib
         /// Logs an error message to the console.
         /// </summary>
         /// <param name="errorMessage">The error message to log.</param>
-        public void LogError(string errorMessage)
+        public void logError(string errorMessage)
         {
             Console.WriteLine($"Error: {errorMessage}");
         }

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Data;
 using System.Reflection;
 using System.Runtime.Serialization;
+using vsharp.src.ast;
 
 namespace VSharp
 {
@@ -473,10 +474,63 @@ namespace VSharp
                 case LibStatement libStmt:
                     ExecuteLibStatement(libStmt, variables);
                     break;
+                case SwitchNode switchStmt:
+                    ExecuteSwitchStatement(switchStmt,variables);
+                    break;
+                case UntilNode untilStmt:
+                    ExecuteUntilNode(untilStmt, variables);
+                    break;
                 default:
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
+        }
+
+        void ExecuteUntilNode(UntilNode stmt, IVariables vars)
+        {
+            while (EvaluateExpression(stmt.condition, vars) as bool? == false)
+            {
+                try
+                {
+                    EvaluateExpression(stmt.block, vars.Child());
+                }
+                catch (ContinueInterrupt)
+                {
+
+                }
+                catch (BreakInterrupt)
+                {
+                    return;
+                }
+            }
+        }
+
+        void ExecuteSwitchStatement(SwitchNode stmt, IVariables vars)
+        {
+            var switchValue = EvaluateExpression(stmt.Expr, vars);
+            bool isFound = false;
+
+            foreach (var (expr, block) in stmt.Cases)
+            {
+                if (EvaluateExpression(expr, vars).Equals(switchValue))
+                {
+                    isFound = true;
+                    foreach (var st in block.Statements)
+                    {
+                        ExecuteStatement(st, vars);
+                    }
+                    break; 
+                }
+            }
+
+        
+            if (!isFound && stmt.Default != null)
+            {
+                foreach (var st in stmt.Default.Statements)
+                {
+                    ExecuteStatement(st, vars);
+                }
+            }
         }
 
         void ExecuteLibStatement(LibStatement stmt, IVariables vars)
