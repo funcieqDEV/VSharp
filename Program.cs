@@ -51,6 +51,7 @@ public class Program
                 }
                 CreateNewProject(args[1]);
                 break;
+
             default:
                 Console.WriteLine($"ERROR: Unknown command '{args[0]}'\n");
                 PrintUsage();
@@ -96,24 +97,25 @@ public class Program
 
     private static void RunFile(string filePath)
     {
-        if (!File.Exists(filePath))
+        
+        string fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
+        if (!File.Exists(fullPath))
         {
-            Console.WriteLine($"ERROR: File '{filePath}' not found.");
+            Console.WriteLine($"ERROR: File '{fullPath}' not found.");
             return;
         }
 
         try
         {
             string initialDir = Environment.CurrentDirectory;
-            Environment.CurrentDirectory = new FileInfo(filePath).Directory!.FullName;
+            Environment.CurrentDirectory = new FileInfo(fullPath).Directory!.FullName;
 
-            string input = File.ReadAllText(filePath);
-            _Path = filePath;
+            string input = File.ReadAllText(fullPath);
+            _Path = fullPath;
 
             Lexer lexer = new Lexer(input);
             List<Token> tokens = lexer.Tokenize();
-
-
 
             Parser parser = new Parser(tokens);
             ProgramNode program = parser.Parse();
