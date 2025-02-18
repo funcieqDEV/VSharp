@@ -196,6 +196,7 @@ namespace VSharp
                     else
                     {
                         tokens.Add(new Token(TokenType.Operator, "/"));
+                        _position++;
                     }
                     
                 }
