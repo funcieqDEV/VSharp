@@ -17,6 +17,16 @@ namespace VSharpLib
             Random rnd = new Random();
             return rnd.Next(min, max);
         }
+        /// <summary>
+        /// Generates a random double between the specified minimum and maxiumus values
+        /// </summary>
+        /// <param name="min">The inclusive lower bound of the random number returned.</param>
+        /// <param name="max">The exclusive upper bound of the random number returned.</param>
+        /// <returns>A random double between min and max</returns>
+        public double? randFloat(double min,double max) {
+            Random random = new Random();
+            return random.NextDouble() * (max - min) + min;
+        }
 
         /// <summary>
         /// Gets the value of Pi (π).
