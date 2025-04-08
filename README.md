@@ -46,12 +46,8 @@ at this point you can already use V#
   - Debian 10 or later
   - Fedora 34 or later
   - CentOS 8 or later
+  - others must support .net8.0
 
-- **macOS**
-  - macOS 10.15 (Catalina) or later
-  - macOS 11 Big Sur
-  - macOS 12 Monterey
-  - macOS 13 Ventura
 
 ### Required Software
 - **.NET SDK**: Version 8.0 or later
@@ -72,18 +68,10 @@ at this point you can already use V#
 ### Development Environment Recommendations
 - Recommended Code Editors:
   - Visual Studio Code
-  - Visual Studio
   - JetBrains Rider
   - Sublime Text
   - Atom
 
-### Compatibility
-- Full x64 architecture support
-- Partial ARM64 support (experimental)
-
-### Network Requirements
-- Minimum bandwidth: 1 Mbps
-- Open port 443 for updates and library imports
 
 ### Performance Considerations
 - Interpreter performance may vary based on:
@@ -116,8 +104,7 @@ once you have .net 8.0, go to the directory where the project files are located 
 
 
 ### documentation
- You can find documentation on our [official website](https://funcieqdev.github.io/vsharp-docs)
- or you can find it here on github [docs](https://github.com/funcieqDEV/VSharp-docs/tree/main)
+ You can find documentation on our [official website](https://funcieqdev.github.io/vsharp-docs) (outdated)
 
 official [package manager](https://github.com/funcieqDEV/VSPLib)
  
