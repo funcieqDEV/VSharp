@@ -106,8 +106,7 @@ once you have .net 8.0, go to the directory where the project files are located 
 ### documentation
  You can find documentation on our [official website](https://funcieqdev.github.io/vsharp-docs) (outdated)
 
-official [package manager](https://github.com/funcieqDEV/VSPLib)
- 
+official [package manager](https://github.com/funcieqDEV/VSPLib) (outdated source code)
 - **run the project**
 ```bash
 VSharp run <file.vshrp>
