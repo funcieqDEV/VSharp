@@ -24,8 +24,7 @@ characteristics:
 
 ### installation
  - first you need to **download V#**
- - then **unzip** the file to a location you like
- - the next step is to *run* **install.bat**
+ - then just run installer file
 
 at this point you can already use V#
 
