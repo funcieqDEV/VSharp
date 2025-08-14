@@ -1,13 +1,15 @@
 <p align="center">
 <img src="art/vs_logo.png" width="400px">
 </p>
-
-![GitHub repo creation date](https://img.shields.io/badge/created-July%202024-brightgreen)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/funcieqDEV/VSharp)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-![GitHub stars](https://img.shields.io/github/stars/funcieqDev/VSharp)
-![GitHub all releases](https://img.shields.io/github/downloads/funcieqDev/VSharp/total)
-
+<p align="center">
+  <img src="https://img.shields.io/badge/created-July%202024-brightgreen?style=for-the-badge" alt="GitHub repo creation date">
+  <img src="https://img.shields.io/github/v/release/funcieqDEV/VSharp?style=for-the-badge" alt="GitHub release (latest by date)">
+  <a href="CONTRIBUTING.md">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome">
+  </a>
+  <img src="https://img.shields.io/github/stars/funcieqDev/VSharp?style=for-the-badge" alt="GitHub stars">
+  <img src="https://img.shields.io/github/downloads/funcieqDev/VSharp/total?style=for-the-badge" alt="GitHub all releases">
+</p>
 
 
 
