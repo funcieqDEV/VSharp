@@ -159,6 +159,7 @@ namespace VSharp {
     {
         public string Name { get; }
 
+
         public IdentifierNode(string name)
         {
             Name = name;

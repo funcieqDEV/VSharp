@@ -7,6 +7,32 @@ using vsharp.src.ast;
 namespace VSharp
 {
 
+
+
+    public static class ErrorHandler
+    {
+        public static (int, int) PosToLineCol(int pos, string SRC)
+        {
+            int line = 1;
+            int col = 1;
+
+            for (int i = 0; i < pos && i < SRC.Length; i++)
+            {
+                if (SRC[i] == '\n')
+                {
+                    line++;
+                    col = 1;
+                }
+                else
+                {
+                    col++;
+                }
+            }
+
+            return (line, col);
+        }
+    }
+
     interface Invokable
     {
         object? Invoke(List<object?> args, Interpreter interpreter);
@@ -295,9 +321,9 @@ namespace VSharp
             Entries[name] = value;
         }
 
-        public object? GetVar(string name)
+        public object? GetVar(IdentifierNode name)
         {
-            return Entries[name];
+            return Entries[name.Name];
         }
     }
 
@@ -322,7 +348,7 @@ namespace VSharp
     {
         public bool HasVar(string name);
         public void SetVar(string name, object? value);
-        public object? GetVar(string name);
+        public object? GetVar(IdentifierNode name);
 
         public IVariables Child()
         {
@@ -363,11 +389,11 @@ namespace VSharp
             _variables[name] = value;
         }
 
-        public object? GetVar(string name) 
+        public object? GetVar(IdentifierNode name) 
         {
-            if (_variables.ContainsKey(name)) 
+            if (_variables.ContainsKey(name.Name)) 
             {
-                return _variables[name];
+                return _variables[name.Name];
             }
 
             if (_parent != null) 
@@ -375,10 +401,12 @@ namespace VSharp
                 return _parent.GetVar(name);
             }
 
-            throw new VariableNotFoundError(name);
+            throw new VariableNotFoundError("Variable \""+name.Name+"\" not found");
         }
 
     };
+
+
 
     public class Function : Invokable {
         public required List<(string, VType?)> Args { get; set;}
@@ -956,7 +984,7 @@ namespace VSharp
         {
             return node switch
             {
-                IdentifierNode identifierNode => variables.GetVar(identifierNode.Name),
+                IdentifierNode identifierNode => variables.GetVar(identifierNode),
                 BinaryOperationNode binaryOpNode => EvaluateBinaryOperation(binaryOpNode, variables),
                 ConstArray array => LoadConstArray(array, variables),
                 ConstBool b => b.Value,
@@ -972,6 +1000,13 @@ namespace VSharp
                 ConstFunction func => new Function { Args = func.Args, Body = func.Body, CurriedScope = variables },
                 Indexing indexing => EvaluateIndexing(indexing, variables),
                 TypeCheck check => EvaluateTypeCheck(check, variables),
+                LogicalNode logicalNode => 
+                    logicalNode.Operator.Value switch 
+                    {
+                        "and" => (EvaluateExpression(logicalNode.Left, variables) as bool? ?? false) && (EvaluateExpression(logicalNode.Right, variables) as bool? ?? false),
+                        "or" => (EvaluateExpression(logicalNode.Left, variables) as bool? ?? false) || (EvaluateExpression(logicalNode.Right, variables) as bool? ?? false),
+                        _ => throw new Exception($"Unsupported logical operator: {logicalNode.Operator}")
+                    },
                 _ => throw new Exception($"Unsupported AST node type: {node.GetType().Name}"),
             };
         }

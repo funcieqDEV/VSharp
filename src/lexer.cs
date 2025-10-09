@@ -56,18 +56,29 @@ namespace VSharp
         ExclamationMark,
         Colon,
         Or,
-        And
+        And,
+        Inc,
+        Dec,
+        PlusAssign,
+        MinusAssign,
     }
 
     public class Token
     {
         public TokenType Type { get; }
         public string Value { get; }
+        public int Pos;
 
         public Token(TokenType type, string value)
         {
             Type = type;
             Value = value;
+        }
+        public Token(TokenType type, string value, int pos)
+        {
+            Type = type;
+            Value = value;
+            Pos = pos;
         }
 
         public override string ToString()
@@ -138,11 +149,11 @@ namespace VSharp
                     if (LookAhead() == '=')
                     {
                         _position += 2;
-                        tokens.Add(new Token(TokenType.Equal, "=="));
+                        tokens.Add(new Token(TokenType.Equal, "==", _position));
                     }
                     else
                     {
-                        tokens.Add(new Token(TokenType.Assignment, "="));
+                        tokens.Add(new Token(TokenType.Assignment, "=", _position));
                         _position++;
                     }
                 }
@@ -151,34 +162,34 @@ namespace VSharp
                     if (LookAhead() == '=')
                     {
                         _position += 2;
-                        tokens.Add(new Token(TokenType.NotEqual, "!="));
+                        tokens.Add(new Token(TokenType.NotEqual, "!=", _position));
                     }
                     else
                     {
                         _position++;
-                        tokens.Add(new Token(TokenType.ExclamationMark, "!"));
+                        tokens.Add(new Token(TokenType.ExclamationMark, "!", _position));
                     }
                 }
                 else if (currentChar == ',')
                 {
                     _position++;
-                    tokens.Add(new Token(TokenType.Comma, ","));
+                    tokens.Add(new Token(TokenType.Comma, ",", _position));
                 }
                 else if (currentChar == ':')
                 {
                     _position++;
-                    tokens.Add(new Token(TokenType.Colon, ":"));
+                    tokens.Add(new Token(TokenType.Colon, ":", _position));
                 }
                 else if (currentChar == '<')
                 {
                     if (LookAhead() == '=')
                     {
                         _position += 2;
-                        tokens.Add(new Token(TokenType.LessEqual, "<="));
+                        tokens.Add(new Token(TokenType.LessEqual, "<=", _position));
                     }
                     else
                     {
-                        tokens.Add(new Token(TokenType.Less, "<"));
+                        tokens.Add(new Token(TokenType.Less, "<", _position));
                         _position++;
                     }
                 }
@@ -195,7 +206,7 @@ namespace VSharp
                     }
                     else
                     {
-                        tokens.Add(new Token(TokenType.Operator, "/"));
+                        tokens.Add(new Token(TokenType.Operator, "/", _position));
                         _position++;
                     }
                     
@@ -219,62 +230,98 @@ namespace VSharp
                     if (LookAhead() == '=')
                     {
                         _position += 2;
-                        tokens.Add(new Token(TokenType.GreaterEqual, ">="));
+                        tokens.Add(new Token(TokenType.GreaterEqual, ">=", _position));
                     }
                     else
                     {
-                        tokens.Add(new Token(TokenType.Greater, ">"));
+                        tokens.Add(new Token(TokenType.Greater, ">", _position));
+                        _position++;
+                    }
+                }
+                else if(currentChar == '+')
+                {
+                    if (LookAhead() == '+')
+                    {
+                        _position += 2;
+                        tokens.Add(new Token(TokenType.Inc, "++", _position));
+                    }
+                    else if (LookAhead() == '=')
+                    {
+                        _position += 2;
+                        tokens.Add(new Token(TokenType.PlusAssign, "+=", _position));
+                    }
+                    else
+                    {
+                        tokens.Add(new Token(TokenType.Operator, "+", _position));
+                        _position++;
+                    }
+                }
+                else if(currentChar == '-')
+                {
+                    if (LookAhead() == '-')
+                    {
+                        _position += 2;
+                        tokens.Add(new Token(TokenType.Dec, "--", _position));
+                    }
+                    else if(LookAhead() == '=')
+                    {
+                        _position += 2;
+                        tokens.Add(new Token(TokenType.MinusAssign, "-=", _position));
+                    }
+                    else
+                    {
+                        tokens.Add(new Token(TokenType.Operator, "-", _position));
                         _position++;
                     }
                 }
                 else if (IsOperator(currentChar))
                 {
-                    tokens.Add(new Token(TokenType.Operator, currentChar.ToString()));
+                    tokens.Add(new Token(TokenType.Operator, currentChar.ToString(),_position));
                     _position++;
                 }
                 else if (currentChar == '(')
                 {
-                    tokens.Add(new Token(TokenType.LeftParen, "("));
+                    tokens.Add(new Token(TokenType.LeftParen, "(", _position));
                     _position++;
                 }
                 else if (currentChar == '|')
                 {
-                    tokens.Add(new Token(TokenType.Or, "|"));
+                    tokens.Add(new Token(TokenType.Or, "|", _position));
                     _position++;
                 }
                 else if (currentChar == '&')
                 {
-                    tokens.Add(new Token(TokenType.And, "&"));
+                    tokens.Add(new Token(TokenType.And, "&", _position));
                     _position++;
                 }
                 else if (currentChar == ')')
                 {
-                    tokens.Add(new Token(TokenType.RightParen, ")"));
+                    tokens.Add(new Token(TokenType.RightParen, ")", _position));
                     _position++;
                 }
                 else if (currentChar == '{')
                 {
-                    tokens.Add(new Token(TokenType.LeftBrace, "{"));
+                    tokens.Add(new Token(TokenType.LeftBrace, "{", _position));
                     _position++;
                 }
                 else if (currentChar == '}')
                 {
-                    tokens.Add(new Token(TokenType.RightBrace, "}"));
+                    tokens.Add(new Token(TokenType.RightBrace, "}", _position));
                     _position++;
                 }
                 else if (currentChar == '[')
                 {
-                    tokens.Add(new Token(TokenType.SquareOpen, "["));
+                    tokens.Add(new Token(TokenType.SquareOpen, "[", _position));
                     _position++;
                 }
                 else if (currentChar == '.')
                 {
-                    tokens.Add(new Token(TokenType.Dot, "."));
+                    tokens.Add(new Token(TokenType.Dot, ".", _position));
                     _position++;
                 }
                 else if (currentChar == ']')
                 {
-                    tokens.Add(new Token(TokenType.SquareClose, "]"));
+                    tokens.Add(new Token(TokenType.SquareClose, "]", _position));
                     _position++;
                 }
                 else
@@ -312,10 +359,10 @@ namespace VSharp
             string value = _input.Substring(start, _position - start);
             if (Keywords.ContainsKey(value))
             {
-                return new Token(Keywords[value], value);
+                return new Token(Keywords[value], value,_position);
             }
 
-            return new Token(TokenType.Identifier, value);
+            return new Token(TokenType.Identifier, value, _position);
         }
 
         private Token ReadNumber()
@@ -337,7 +384,7 @@ namespace VSharp
             }
 
             string value = _input.Substring(start, _position - start);
-            return isFloat ? new Token(TokenType.FloatLiteral, value) : new Token(TokenType.IntegerLiteral, value);
+            return isFloat ? new Token(TokenType.FloatLiteral, value, _position) : new Token(TokenType.IntegerLiteral, value, _position);
         }
 
         private Token ReadString()
@@ -355,7 +402,7 @@ namespace VSharp
 
             string value = _input.Substring(start, _position - start);
             _position++;
-            return new Token(TokenType.StringLiteral, value);
+            return new Token(TokenType.StringLiteral, value, _position);
         }
     }
 }

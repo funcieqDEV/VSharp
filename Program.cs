@@ -6,7 +6,7 @@ using VSharp;
 public class Program
 {
     public static string _Path = string.Empty;
-    private const string Version = "0.4.1 LTS";
+    private const string Version = "0.4.5-09102025";
 
     public static void Main(string[] args)
     {
@@ -117,7 +117,7 @@ public class Program
             Lexer lexer = new Lexer(input);
             List<Token> tokens = lexer.Tokenize();
 
-            Parser parser = new Parser(tokens);
+            Parser parser = new Parser(tokens,input);
             ProgramNode program = parser.Parse();
 
             Interpreter interpreter = new Interpreter();

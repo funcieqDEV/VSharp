@@ -49,7 +49,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="name">The file path to read.</param>
         /// <returns>The content of the file as a string, or null if reading fails.</returns>
-        public string? ReadFile(object name)
+        public string? readFile(object name)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="name">The file path to write to.</param>
         /// <param name="value">The content to write to the file.</param>
-        public void WriteFile(object name, object value)
+        public void writeFile(object name, object value)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="name">The file path to append to.</param>
         /// <param name="value">The content to append to the file.</param>
-        public void AppendToFile(object name, object value)
+        public void appendToFile(object name, object value)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="name">The file path to check.</param>
         /// <returns>True if the file exists, otherwise false.</returns>
-        public bool FileExists(object name)
+        public bool fileExists(object name)
         {
             return System.IO.File.Exists(name.ToString());
         }
@@ -111,11 +111,11 @@ namespace VSharpLib
         /// Deletes the specified file if it exists.
         /// </summary>
         /// <param name="name">The file path to delete.</param>
-        public void DeleteFile(object name)
+        public void deleteFile(object name)
         {
             try
             {
-                if (FileExists(name))
+                if (fileExists(name))
                 {
                     System.IO.File.Delete(name.ToString());
                 }
@@ -134,7 +134,7 @@ namespace VSharpLib
         /// </summary>
         /// <param name="name">The file path to read.</param>
         /// <returns>A list of strings representing each line in the file, or null if reading fails.</returns>
-        public List<string>? ReadLines(object name)
+        public List<string>? readLines(object name)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace VSharpLib
             }
         }
 
-        public void WriteLines(object name, List<string> lines)
+        public void writeLines(object name, List<string> lines)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace VSharpLib
         /// <param name="source">The source file path.</param>
         /// <param name="destination">The destination file path.</param>
         /// <param name="overwrite">Whether to overwrite the file if it already exists at the destination.</param>
-        public void CopyFile(object source, object destination, bool overwrite = false)
+        public void copyFile(object source, object destination, bool overwrite = false)
         {
             try
             {

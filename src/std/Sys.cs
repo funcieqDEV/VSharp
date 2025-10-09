@@ -67,6 +67,14 @@ namespace VSharpLib
                 "blue" => ConsoleColor.Blue,
                 "cyan" => ConsoleColor.Cyan,
                 "green" => ConsoleColor.Green,
+                "gray" => ConsoleColor.Gray,
+                "darkred" => ConsoleColor.DarkRed,
+                "darkblue" => ConsoleColor.DarkBlue,
+                "darkcyan" => ConsoleColor.DarkCyan,
+                "darkgray" => ConsoleColor.DarkGray,
+                "darkgreen" => ConsoleColor.DarkGreen,
+                "darkmagenta" => ConsoleColor.DarkMagenta,
+                "darkyellow" => ConsoleColor.DarkYellow,
                 _ => ConsoleColor.White
             };
         }

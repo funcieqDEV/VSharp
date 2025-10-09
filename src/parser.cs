@@ -4,7 +4,7 @@ using vsharp.src.ast;
 namespace VSharp
 {
    
-    public class Parser(List<Token> tokens)
+    public class Parser(List<Token> tokens, string SRC = "")
     {
         private readonly List<Token> _tokens = tokens;
         private int _position = 0;
@@ -125,13 +125,49 @@ namespace VSharp
 
             if (Peek().Type == TokenType.Assignment)
             {
-                
+
                 _position = startPosition;
                 return ParseSetStatement(false);
             }
+            else if (Peek().Type == TokenType.Inc)
+            {
+                NextToken();
+               return new SetStatementNode
+               (
+                ((IdentifierNode)leftSide).Name,
+                new BinaryOperationNode(leftSide, "+", new ConstInt { Value = 1 })
+               );
+            }
+            else if (Peek().Type == TokenType.Dec)
+            {
+                NextToken();
+               return new SetStatementNode
+               (
+                ((IdentifierNode)leftSide).Name,
+                new BinaryOperationNode(leftSide, "-", new ConstInt { Value = 1 })
+               );
+            }
+            else if (Peek().Type == TokenType.PlusAssign)
+            {
+                NextToken();
+               return new SetStatementNode
+               (
+                ((IdentifierNode)leftSide).Name,
+                new BinaryOperationNode(leftSide, "+", ParseExpression())
+               );
+            }
+            else if (Peek().Type == TokenType.MinusAssign)
+            {
+                NextToken();
+               return new SetStatementNode
+               (
+                ((IdentifierNode)leftSide).Name,
+                new BinaryOperationNode(leftSide, "-", ParseExpression())
+               );
+            }
             else
             {
-              
+
                 return new ExprStatement(leftSide);
             }
         }
@@ -829,8 +865,9 @@ namespace VSharp
             {
                 return NextToken();
             }
-
-            throw new Exception(errorMessage + " got "+Peek().Type);
+            int line, col;
+            (line, col) = PosToLineCol(Peek().Pos);
+            throw new Exception(errorMessage + " got \""+Peek().Type+"\" at <"+line+" ,"+col+">\n");
         }
 
         private Token Peek()
@@ -852,6 +889,27 @@ namespace VSharp
         {
             if (!IsAtEnd()) _position++;
             return _tokens[_position - 1];
+        }
+
+        public (int, int) PosToLineCol(int pos)
+        {
+            int line = 1;
+            int col = 1;
+
+            for (int i = 0; i < pos && i < SRC.Length; i++)
+            {
+                if (SRC[i] == '\n')
+                {
+                    line++;
+                    col = 1;
+                }
+                else
+                {
+                    col++;
+                }
+            }
+
+            return (line, col);
         }
 
         private bool IsAtEnd()
