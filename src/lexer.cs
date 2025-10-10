@@ -30,6 +30,8 @@ namespace VSharp
         KeywordCase,
         KeywordUntil,
         KeywordUse,
+        KeywordDo,
+        KeywordElif,
         Identifier,
         IntegerLiteral,
         FloatLiteral,
@@ -118,6 +120,8 @@ namespace VSharp
             {"default",TokenType.KeywordDefault},
             {"until",TokenType.KeywordUntil },
             {"use",TokenType.KeywordUse },
+            {"do", TokenType.KeywordDo },
+            {"elif", TokenType.KeywordElif }
         };
 
         public List<Token> Tokenize()

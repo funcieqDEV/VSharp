@@ -41,8 +41,20 @@ namespace VSharp
                 TokenType.KeywordLib => ParseLib(),
                 TokenType.KeywordSwitch => ParseSwitch(),
                 TokenType.KeywordUntil => ParseUntil(),
+                TokenType.KeywordDo => ParseDo(),
                 _ => new ExprStatement(ParseExpression()),
             };
+        }
+
+        private DoNode ParseDo()
+        {
+            Consume(TokenType.KeywordDo, "");
+            var b = ParseBlockNode();
+            Consume(TokenType.KeywordWhile, "Expected 'while'");
+            Consume(TokenType.LeftParen, "Expected '('");
+            var condition = ParseLogicalExpression();
+            Consume(TokenType.RightParen, "Expected ')' after condition");
+            return new DoNode(b, condition);
         }
 
         private UseStatement ParseUse()
@@ -585,7 +597,10 @@ namespace VSharp
 
         private IfNode ParseIfStatement()
         {
-            Consume(TokenType.KeywordIf, "Expected 'if' keyword");
+            if(Peek().Type == TokenType.KeywordIf)
+            {
+                Consume(TokenType.KeywordIf, "Expected 'if' keyword");
+            }
             Consume(TokenType.LeftParen, "Expected '(' after 'if'");
             var condition = ParseLogicalExpression();
             Consume(TokenType.RightParen, "Expected ')' after condition");
@@ -595,7 +610,13 @@ namespace VSharp
                 Condition = condition,
                 TrueBlock = trueBlock
             };
-            if (Peek().Type == TokenType.KeywordElse)
+            if(Peek().Type == TokenType.KeywordElif)
+            {
+                Consume(TokenType.KeywordElif, "Expected 'elif' keyword");
+                var elif = ParseIfStatement();
+                ifNode.FalseBlock = elif;
+            }
+            else if (Peek().Type == TokenType.KeywordElse)
             {
                 Consume(TokenType.KeywordElse, "Expected 'else' keyword");
                 var falseBlock = ParseBlockNode();
@@ -833,7 +854,9 @@ namespace VSharp
                     Consume(TokenType.RightParen, "Expected closing brace");
                     return expr;
                 default:
-                    throw new Exception($"Unexpected token: {current}");
+                    int line, col;
+                    (line, col) = PosToLineCol(current.Pos);
+                    throw new Exception($"Unexpected token: {current} at <"+line+", "+col+" >");
             }
         }
 

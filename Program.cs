@@ -6,7 +6,7 @@ using VSharp;
 public class Program
 {
     public static string _Path = string.Empty;
-    private const string Version = "0.4.5-09102025";
+    private const string Version = "0.4.5-10102025";
 
     public static void Main(string[] args)
     {

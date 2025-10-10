@@ -511,11 +511,16 @@ namespace VSharp
                 case UseStatement useStmt:
                     ExecuteUse(useStmt, variables);
                     break;
+                case DoNode doNode:
+                    ExecuteDoWhileStatement(doNode, variables);
+                    break;
                 default:
                     throw new Exception("Unhandled statement" + node);
             }
             return null;
         }
+
+
 
         void ExecuteUse(UseStatement stmt, IVariables vars)
         {
@@ -836,7 +841,13 @@ namespace VSharp
             }
         }
 
-
+        void ExecuteDoWhileStatement(DoNode doStmt, IVariables variables)
+        {
+            do
+            {
+                doStmt.Body.Statements.ForEach(st => ExecuteStatement(st, variables.Child()));
+            }while (EvaluateExpression(doStmt.Condition, variables) as bool? ?? false);
+        }
         void ExecuteTypeStatement(TypeStatement ts, IVariables variables)
         {
             Dictionary<string, int> genericPos = ts.Generics
