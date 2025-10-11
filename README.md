@@ -1,5 +1,5 @@
 <p align="center">
-<img src="art/vs_logo.png" width="400px">
+<img src="art/vs_logo.png" width="400px" alt="V# logo">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/created-July%202024-brightgreen?style=for-the-badge" alt="GitHub repo creation date">
@@ -15,57 +15,41 @@
 
 <br>
 
-**an interpreted programming language that allows you to write all types of programs, from simple console applications to even games**
+**V# is an interpreted programming language that lets you build anything — from simple console tools to full games.**
 
+> Designed to be simple, readable, and written entirely in C#.
 
-V# is a new and modern programming language. 
-characteristics:
-- **it is an interpreted language**
-- **made in C#**
-- **easy to learn**
+## installation
 
-### installation
+### Windows
  - first you need to **download V#**
  - then just run installer file
 
 at this point you can already use V#
 
-## System Requirements
+### Linux
+- download the V# source code
+- build source code
+- add to system path
 
-### Minimum Requirements
-- **Processor**: 1 GHz or faster
-- **RAM**: 2 GB
-- **Disk Space**: 100 MB
+## 💻 System Requirements
 
-### Supported Operating Systems
-- **Windows**
-  - Windows 10 (64-bit)
-  - Windows 11
-  - Windows Server 2019+
+### Minimum
+- CPU: 1 GHz or faster  
+- RAM: 2 GB  
+- Disk: 100 MB  
 
-- **Linux**
-  - Ubuntu 20.04 LTS or later
-  - Debian 10 or later
-  - Fedora 34 or later
-  - CentOS 8 or later
-  - others must support .net8.0
+### Recommended
+- CPU: 2+ GHz multi-core  
+- RAM: 4+ GB  
+- Disk: 500 MB SSD  
 
+### Supported OS
+- **Windows:** 10 / 11 / Server 2019+
+- **Linux:** Ubuntu 20.04+, Debian 10+, Fedora 34+, CentOS 8+, or any with .NET 8.0 support
 
 ### Required Software
-- **.NET SDK**: Version 8.0 or later
-  - [Download .NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
-
-### Recommended Requirements
-- **Processor**: 2 GHz or faster, multi-core
-- **RAM**: 4 GB or more
-- **Disk Space**: 500 MB
-- Stable internet connection (for library imports, updates)
-
-### Hardware Requirements for Advanced Applications
-- For computationally intensive projects:
-  - Processor: 4 cores, 3 GHz
-  - RAM: 8 GB or more
-  - SSD for better performance
+- [.NET SDK 8.0+](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ### Development Environment Recommendations
 - Recommended Code Editors:
@@ -74,19 +58,12 @@ at this point you can already use V#
   - Sublime Text
   - Atom
 
-
-### Performance Considerations
-- Interpreter performance may vary based on:
-  - System specifications
-  - Complexity of the script
-  - Number of external library imports
-
 ### Special thanks
 [Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
 
 ### Compilation
 - **Download source**
-after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio
+after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio code
 
 - **Build the project**<br>
 
@@ -102,8 +79,6 @@ once you have .net 8.0, go to the directory where the project files are located 
  cd VSharp
  dotnet build
  ```
-
-
 
 ### documentation
  You can find documentation on our [official website](https://funcieqdev.github.io/vsharp-docs) (outdated)
