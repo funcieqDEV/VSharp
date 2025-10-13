@@ -1,9 +1,8 @@
-
-> * compiler
-> * full support for float and string
+> * ~full support for float and string~
 > * ~import library~
-> * gui support 
-> * code editor for V#
+> * ~gui support~ 
 > * ~list~
 > * structs
-> * classes
+> * lsp for V#
+> * module system
+> * async/await
