@@ -23,14 +23,14 @@
 
 ### Windows
  - first you need to **download V#**
- - then just run installer file
+ - then just run the installer file
 
-at this point you can already use V#
+At this point, you can already use V#
 
 ### Linux
-- download the V# source code
+- Download the V# source code
 - build source code
-- add to system path
+- add to the system path
 
 ## 💻 System Requirements
 
@@ -58,21 +58,18 @@ at this point you can already use V#
   - Sublime Text
   - Atom
 
-### Special thanks
-[Thanks](https://github.com/funcieqDEV/VSharp/blob/main/SPECIAL_THANKS.md)
-
 ### Compilation
 - **Download source**
-after you download source you shoud check if<br> you have .net 8.0 and right code editor like Visual studio code
+After you download the source, you should check if<br> you have .NET 8.0 and the right code editor like Visual Studio Code
 
 - **Build the project**<br>
 
 **Windows**<br>
-once you have .net 8.0, go to the directory where the project files are located and use `dotnet build`
+Once you have .NET 8.0, go to the directory where the project files are located and use `dotnet build`
 <br>
 
 **Linux**<br>
- - install .net 8.0<br>
+ - install .NET 8.0<br>
  - clone repo
  ```bash
  git clone https://github.com/funcieqDEV/VSharp
